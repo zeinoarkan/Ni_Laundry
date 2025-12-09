@@ -1,0 +1,280 @@
+<?php
+
+// app/Http/Controllers/AdminController.php
+namespace App\Http\Controllers;
+
+use App\Models\Pesanan;
+use App\Models\Layanan;
+use App\Models\Pelanggan;
+use App\Models\Admin;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+
+class AdminController extends Controller
+{
+    public function dashboard() {
+        $data = [
+            'total_pesanan' => Pesanan::count(),
+            'total_pelanggan' => Pelanggan::count(),
+            'pendapatan' => Pesanan::where('status_pesanan', 'Selesai')->sum('total_harga'),
+            'pesanan_terbaru' => Pesanan::with(['pelanggan', 'layanan'])
+                     ->orderBy('id_pesanan', 'desc') // Ganti latest() dengan ini
+                     ->take(5)
+                     ->get()
+        ];
+        return view('admin.dashboard', $data);
+    }
+
+    public function updateStatus(Request $request, $id) {
+        $pesanan = Pesanan::find($id);
+        $status_lama = $pesanan->status_pesanan;
+        
+        // Update Status
+        $pesanan->status_pesanan = $request->status_pesanan;
+        $pesanan->save();
+
+        // LOGIKA SAAT PESANAN SELESAI
+        if ($request->status_pesanan == 'Selesai' && $status_lama != 'Selesai') {
+            
+            // 1. Ambil Data Pelanggan
+            $pelanggan = Pelanggan::find($pesanan->id_pelanggan);
+            
+            // 2. Hitung Bonus (Logika Lama)
+            $pelanggan->progres_kg += $pesanan->berat;
+            if ($pelanggan->progres_kg >= 8) {
+                $pelanggan->bonus += 1; // Tambah tiket bonus
+                $pelanggan->progres_kg -= 8; // Reset progres
+            }
+            $pelanggan->save();
+
+            // 3. KIRIM NOTIFIKASI WHATSAPP (BARU)
+            try {
+                $pesanWA = "Halo Kak *{$pelanggan->nama}*! 👋\n\n";
+                $pesanWA .= "Kabar gembira, cucian Anda dengan ID Pesanan *#{$pesanan->id_pesanan}* sudah *SELESAI* dan siap diambil/diantar. 🧺✨\n\n";
+                $pesanWA .= "Total Berat: {$pesanan->berat} Kg\n";
+                $pesanWA .= "Total Tagihan: Rp " . number_format($pesanan->total_harga, 0, ',', '.') . "\n\n";
+                $pesanWA .= "Terima kasih telah mempercayakan pakaian Anda pada Ni Laundry!";
+
+                $this->sendWhatsapp($pelanggan->no_hp, $pesanWA);
+                
+            } catch (\Exception $e) {
+                // Biarkan lanjut meski WA gagal (agar tidak error 500)
+            }
+        }
+
+        return back()->with('success', 'Status diperbarui & Notifikasi WA dikirim (jika nomor valid)!');
+    }
+
+    // CRUD LAYANAN
+    
+    public function layananIndex() {
+        $layanan = Layanan::all();
+        return view('admin.layanan.index', compact('layanan'));
+    }
+
+    public function layananCreate() {
+        return view('admin.layanan.create');
+    }
+
+    public function layananStore(Request $request) {
+        Layanan::create([
+            'nama_layanan' => $request->nama_layanan,
+            'harga' => $request->harga,
+            'jenis' => $request->jenis,
+            'id_admin' => Auth::guard('admin')->id() // Ambil ID Admin yg login
+        ]);
+        return redirect('/admin/layanan')->with('success', 'Layanan berhasil ditambahkan');
+    }
+
+    public function layananEdit($id) {
+        $layanan = Layanan::findOrFail($id);
+        return view('admin.layanan.edit', compact('layanan'));
+    }
+
+    public function layananUpdate(Request $request, $id) {
+        $layanan = Layanan::findOrFail($id);
+        $layanan->update([
+            'nama_layanan' => $request->nama_layanan,
+            'harga' => $request->harga,
+            'jenis' => $request->jenis
+        ]);
+        return redirect('/admin/layanan')->with('success', 'Layanan berhasil diupdate');
+    }
+
+    public function layananDestroy($id) {
+        Layanan::findOrFail($id)->delete();
+        return redirect('/admin/layanan')->with('success', 'Layanan dihapus');
+    }
+
+    // MANAJEMEN PESANAN
+
+    public function pesananIndex() {
+        // Tampilkan semua pesanan, urutkan dari yg terbaru
+        $pesanan = Pesanan::with(['pelanggan', 'layanan'])
+                   ->orderBy('id_pesanan', 'desc')
+                   ->get();
+        return view('admin.pesanan.index', compact('pesanan'));
+    }
+
+    public function pesananEdit($id) {
+       $pesanan = Pesanan::where('id_pesanan', $id)->firstOrFail();
+        
+        // dd($pesanan);
+        return view('admin.pesanan.edit', compact('pesanan'));
+    }
+
+    public function pesananUpdate(Request $request, $id) {
+        $pesanan = Pesanan::findOrFail($id);
+        
+        // Admin bisa update berat dan status
+        $pesanan->update([
+            'berat' => $request->berat,
+            'total_harga' => $request->total_harga, // Admin bisa manual set harga
+            'status_pesanan' => $request->status_pesanan,
+            'jumlah_bayar' => $request->jumlah_bayar ?? 0
+        ]);
+
+        return redirect('/admin/pesanan')->with('success', 'Data pesanan diperbarui');
+    }
+
+    public function pesananDestroy($id) {
+        $pesanan = Pesanan::findOrFail($id);
+
+        if ($pesanan->status_pesanan == 'Selesai') {
+            
+            $pelanggan = Pelanggan::find($pesanan->id_pelanggan);
+            
+            if ($pelanggan) {
+                $pelanggan->progres_kg -= $pesanan->berat;
+                while ($pelanggan->progres_kg < 0) {
+                    
+                    if ($pelanggan->bonus > 0) {
+                        $pelanggan->decrement('bonus'); 
+                        $pelanggan->progres_kg += 8; 
+                    } else {
+                        // Jika bonus sudah 0 tapi masih minus, mentokkan ke 0
+                        $pelanggan->progres_kg = 0;
+                        break; 
+                    }
+                }
+
+                $pelanggan->save();
+            }
+        }
+        // ------------------------------------------
+
+        // Hapus Data Pesanan
+        $pesanan->delete();
+        
+        return back()->with('success', 'Pesanan dihapus. Poin & Bonus pelanggan telah disesuaikan ulang.');
+    }
+
+    // CRUD ADMIN (PENGGUNA)
+
+    public function userAdminIndex() {
+        // Ambil semua admin
+        $admins = Admin::all();
+        return view('admin.users.index', compact('admins'));
+    }
+
+    public function userAdminCreate() {
+        return view('admin.users.create');
+    }
+
+    public function userAdminStore(Request $request) {
+        // Validasi sederhana (opsional)
+        $request->validate([
+            'username' => 'required|unique:admin,username',
+            'password' => 'required|min:6'
+        ]);
+
+        Admin::create([
+            'username' => $request->username,
+            'password' => Hash::make($request->password) // Enkripsi password
+        ]);
+
+        return redirect('/admin/users')->with('success', 'Admin baru berhasil ditambahkan');
+    }
+
+    public function userAdminEdit($id) {
+        $admin = Admin::findOrFail($id);
+        return view('admin.users.edit', compact('admin'));
+    }
+
+    public function userAdminUpdate(Request $request, $id) {
+        $admin = Admin::findOrFail($id);
+
+        $data = [
+            'username' => $request->username
+        ];
+
+        // Hanya update password jika input tidak kosong
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $admin->update($data);
+
+        return redirect('/admin/users')->with('success', 'Data admin diperbarui');
+    }
+
+    public function userAdminDestroy($id) {
+        // Mencegah admin menghapus dirinya sendiri saat sedang login
+        if ($id == Auth::guard('admin')->id()) {
+            return back()->with('error', 'Anda tidak bisa menghapus akun yang sedang digunakan!');
+        }
+
+        Admin::findOrFail($id)->delete();
+        return redirect('/admin/users')->with('success', 'Admin berhasil dihapus');
+    }
+
+    public function diskonIndex() {
+        // Ambil data pelanggan urut dari yang punya bonus, lalu yang progress-nya paling banyak
+        $pelanggan = Pelanggan::orderBy('bonus', 'desc')
+                              ->orderBy('progres_kg', 'desc')
+                              ->get();
+                              
+        return view('admin.diskon.index', compact('pelanggan'));
+    }
+
+    // Fitur Reset Bonus Manual (Opsional, jika admin memberikan bonus secara manual/offline)
+    public function resetBonus($id) {
+        $pelanggan = Pelanggan::findOrFail($id);
+        $pelanggan->bonus = 0; // Hilangkan bonus
+        $pelanggan->save();
+        
+        return back()->with('success', 'Bonus pelanggan berhasil di-reset manual.');
+    }
+
+    // --- FUNGSI PRIVAT UNTUK KIRIM WA (FONNTE) ---
+    private function sendWhatsapp($nomor, $pesan) {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => 'https://api.fonnte.com/send',
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'POST',
+          CURLOPT_POSTFIELDS => array(
+            'target' => $nomor,
+            'message' => $pesan,
+            'countryCode' => '62', // Otomatis ubah 08xx jadi 628xx
+          ),
+          CURLOPT_HTTPHEADER => array(
+            'Authorization: Z4RJR27QU6JaxbXVAt2a' 
+          ),
+        ));
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+        
+        return $response;
+    }
+
+    
+}
