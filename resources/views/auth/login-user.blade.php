@@ -1,42 +1,98 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Pelanggan - Ni Laundry</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+@extends('layouts.main')
+@section('title', 'Login Member')
 
-    <div class="card shadow p-4" style="width: 400px;">
-        <h3 class="text-center mb-4 text-primary">Ni Laundry</h3>
+@section('content')
+<div class="min-h-[80vh] flex items-center justify-center">
+    
+    <div class="w-full max-w-5xl bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-glass border border-white/50 overflow-hidden grid lg:grid-cols-2 p-2">
         
-        @if(session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+        <div class="hidden lg:block relative rounded-[2rem] overflow-hidden group">
+            <img src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=2070&auto=format&fit=crop"
+            alt="Fresh Laundry" 
+            class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-90 transition-transform duration-1000 group-hover:scale-105">
+            
+            <div class="absolute inset-0 bg-gradient-to-t from-brand-900/60 to-transparent"></div>
+            
+            <div class="relative z-10 h-full flex flex-col justify-end p-10 text-white">
+                <h2 class="text-3xl font-bold leading-tight mb-3">
+                    Fresh Clothes,<br>Fresh Mind.
+                </h2>
+                <p class="text-white/90 text-sm font-medium leading-relaxed max-w-xs">
+                    Masuk kembali untuk mengatur jadwal pencucian Anda. Bersih, wangi, dan rapi dalam satu aplikasi.
+                </p>
+            </div>
+        </div>
 
-        <form action="/login" method="POST">
-            @csrf
-            <div class="mb-3">
-                <label class="form-label">Username / Nama</label>
-                <input type="text" name="nama" class="form-control" required placeholder="Masukkan nama anda">
+        <div class="p-8 md:p-12 flex flex-col justify-center">
+            
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">Selamat Datang!</h1>
+                <p class="text-slate-500 font-medium">Masukkan Data Anda untuk melanjutkan.</p>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" required placeholder="********">
+
+            @if(session('error'))
+                <div class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 text-sm font-medium flex items-center gap-2">
+                    <i class="ph-bold ph-warning-circle text-lg"></i>
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <form action="/login" method="POST" class="space-y-5" x-data="{ showPassword: false }">
+                @csrf
+                
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Username</label>
+                    <div class="relative group">
+                        <input type="text" name="nama" required placeholder="Nama Akun"
+                               class="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 text-sm rounded-2xl focus:bg-white focus:border-brand-500 block p-4 pl-12 outline-none transition-all placeholder:text-slate-400 font-normal group-hover:border-slate-200">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center px-4 text-slate-400 group-focus-within:text-brand-500 transition-colors">
+                            <i class="ph-bold ph-user text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-center ml-1">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Password</label>
+                        <a href="#" class="text-xs font-bold text-brand-600 hover:underline">Lupa Password?</a>
+                    </div>
+                    <div class="relative group">
+                        <input :type="showPassword ? 'text' : 'password'" name="password" required placeholder="••••••••"
+                               class="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 text-sm rounded-2xl focus:bg-white focus:border-brand-500 block p-4 pl-12 pr-12 outline-none transition-all placeholder:text-slate-400 font-normal group-hover:border-slate-200">
+                        
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center px-4 text-slate-400 group-focus-within:text-brand-500 transition-colors">
+                            <i class="ph-bold ph-lock-key text-xl"></i>
+                        </div>
+
+                        <button type="button" @click="showPassword = !showPassword" 
+                                class="absolute inset-y-0 right-0 flex items-center px-4 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer outline-none">
+                            <i class="text-xl" :class="showPassword ? 'ph-bold ph-eye-slash' : 'ph-bold ph-eye'"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-4 px-6 rounded-2xl bg-brand-600 text-white font-bold text-sm shadow-lg shadow-brand-200 hover:shadow-glow hover:-translate-y-1 hover:bg-brand-700 transition-all duration-300 flex items-center justify-center gap-2 mt-4">
+                    <span>Masuk Sekarang</span>
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="mt-8 text-center">
+                <p class="text-sm font-medium text-slate-500">
+                    Belum punya akun? 
+                    <a href="/register" class="font-bold text-brand-600 hover:text-brand-700 underline decoration-2 underline-offset-4 decoration-brand-200 hover:decoration-brand-500 transition-all">
+                        Daftar Gratis
+                    </a>
+                </p>
+                
+                <div class="mt-8 pt-6 border-t border-slate-100">
+                     <a href="/admin/login" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-slate-600 bg-slate-50 px-4 py-2 rounded-full hover:bg-slate-100 transition-all">
+                        <i class="ph-fill ph-shield-check"></i> Akses Admin
+                    </a>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Masuk</button>
-        </form>
-        
-        <div class="text-center mt-3">
-            <small>Belum punya akun? <a href="/register">Daftar disini</a></small>
-            <br>
-            <small><a href="/admin/login" class="text-secondary">Login sebagai Admin</a></small>
+
         </div>
     </div>
-
-</body>
-</html>
+</div>
+@endsection

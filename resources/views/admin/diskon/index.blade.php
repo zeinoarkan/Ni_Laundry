@@ -2,67 +2,130 @@
 @section('title', 'Monitoring Diskon')
 
 @section('content')
+<div class="space-y-8">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>Monitoring Diskon & Poin Pelanggan</h3>
-    <div class="alert alert-info py-2 px-3 mb-0 border-0 shadow-sm">
-        <i class="bi bi-info-circle"></i> Target Bonus: <strong>8 Kg</strong> = Gratis Cuci
+    <div class="flex flex-col md:flex-row justify-between items-end gap-6 bg-white/60 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/60 shadow-sm relative overflow-hidden">
+        
+        <div class="absolute top-0 right-0 w-64 h-64 bg-brand-50 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+
+        <div class="relative z-10">
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">Program Diskon</h1>
+            <p class="text-slate-500 font-medium">Pantau progres poin dan bonus pelanggan</p>
+        </div>
+
+        <div class="relative z-10 flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="w-12 h-12 rounded-xl bg-fresh-50 text-fresh-600 flex items-center justify-center text-2xl">
+                <i class="ph-duotone ph-gift"></i>
+            </div>
+            <div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Target Bonus</div>
+                <div class="text-lg font-bold text-slate-800">8 Kg <span class="text-sm font-normal text-slate-500">= Gratis 1 Kg</span></div>
+            </div>
+        </div>
     </div>
-</div>
 
-<div class="card shadow border-0">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nama Pelanggan</th>
-                        <th>No HP</th>
-                        <th style="width: 30%;">Progres (Kg)</th>
-                        <th>Status Bonus</th>
-                        <th>Aksi</th>
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-glass overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 font-bold">
+                        <th class="px-8 py-5">Pelanggan</th>
+                        <th class="px-6 py-5 w-1/3">Progres Real-time</th>
+                        <th class="px-6 py-5">Status Tiket</th>
+                        <th class="px-8 py-5 text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-50">
                     @foreach($pelanggan as $p)
-                    <tr>
-                        <td class="fw-bold">{{ $p->nama }}</td>
-                        <td>{{ $p->no_hp }}</td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <span class="me-2 fw-bold text-muted small">{{ $p->progres_kg }} Kg</span>
-                                <div class="progress flex-grow-1" style="height: 10px;">
-                                    @php 
-                                        $persen = ($p->progres_kg / 8) * 100;
-                                        if($persen > 100) $persen = 100;
-                                    @endphp
-                                    <div class="progress-bar {{ $persen >= 100 ? 'bg-success' : 'bg-warning' }}" 
-                                         role="progressbar" 
-                                         style="width: {{ $persen }}%">
-                                    </div>
+                    <tr class="hover:bg-brand-50/30 transition-colors group">
+                        
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs border border-white shadow-sm">
+                                    {{ substr($p->nama, 0, 2) }}
                                 </div>
-                                <span class="ms-2 small text-muted">8Kg</span>
+                                <div>
+                                    <div class="font-bold text-slate-900 text-sm">{{ $p->nama }}</div>
+                                    <div class="text-xs text-slate-400 font-medium">{{ $p->no_hp }}</div>
+                                </div>
                             </div>
                         </td>
-                        <td>
-                            @if($p->bonus > 0)
-                                <span class="badge bg-success animate-pulse">
-                                    <i class="bi bi-ticket-perforated-fill"></i> Ada Bonus!
-                                </span>
-                            @else
-                                <span class="badge bg-secondary text-opacity-50">Belum Ada</span>
+
+                        <td class="px-6 py-5 align-middle">
+                            @php 
+                                $target = 8;
+                                $capaian = $p->progres_kg;
+                                
+                                // Hitung Persentase (Maksimal 100%)
+                                $persen = ($capaian / $target) * 100;
+                                if($persen > 100) $persen = 100;
+                            @endphp
+
+                            <div class="flex justify-between items-end mb-2">
+                                <div>
+                                    <span class="text-2xl font-bold text-slate-800">{{ $capaian }}</span>
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">/ {{ $target }} Kg</span>
+                                </div>
+                                
+                                @if($persen >= 100)
+                                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100">
+                                        <i class="ph-bold ph-check"></i> Tercapai
+                                    </span>
+                                @else
+                                    <span class="text-xs font-bold text-brand-600">{{ round($persen) }}%</span>
+                                @endif
+                            </div>
+                            
+                            <div class="relative w-full h-4 bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner group">
+                                
+                                <div class="absolute inset-0 z-20 flex w-full h-full px-[12.5%]">
+                                    @for($i = 1; $i < 8; $i++)
+                                        <div class="w-px h-full bg-white/50 flex-1 border-r border-white/40"></div>
+                                    @endfor
+                                </div>
+
+                                <div x-data="{ width: 0 }"
+                                    x-init="setTimeout(() => width = {{ $persen }}, 300)"
+                                    class="h-full rounded-full transition-all duration-[1000ms] ease-out relative z-10
+                                            {{ $persen >= 100 ? 
+                                            'bg-gradient-to-r from-emerald-400 to-emerald-600 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 
+                                            'bg-gradient-to-r from-amber-300 to-amber-500' 
+                                            }}"
+                                    :style="`width: ${width}%`">
+                                </div>
+                            </div>
+                            
+                            @if($capaian < 8)
+                                <div class="mt-2 text-[10px] font-medium text-slate-400 flex items-center gap-1">
+                                    <i class="ph-fill ph-info"></i>
+                                    Kurang <span class="text-slate-600 font-bold">{{ 8 - $capaian }} Kg</span> lagi.
+                                </div>
                             @endif
                         </td>
-                        <td>
+
+                        <td class="px-6 py-5">
+                            @if($p->bonus > 0)
+                                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100 shadow-sm animate-pulse">
+                                    <i class="ph-fill ph-ticket"></i>
+                                    {{ $p->bonus }} Tiket Aktif
+                                </div>
+                            @else
+                                <span class="text-sm font-bold text-slate-300 flex items-center gap-1">
+                                    <i class="ph-bold ph-circle"></i> Belum Ada
+                                </span>
+                            @endif
+                        </td>
+
+                        <td class="px-8 py-5 text-right">
                             @if($p->bonus > 0)
                                 <form action="/admin/diskon/{{ $p->id_pelanggan }}/reset" method="POST" onsubmit="return confirm('Reset bonus pelanggan ini secara manual?');">
                                     @csrf 
-                                    <button class="btn btn-sm btn-outline-danger" title="Pakai/Hapus Bonus Manual">
-                                        <i class="bi bi-x-circle"></i> Reset
+                                    <button class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-500 font-bold text-xs hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm flex items-center gap-2 ml-auto">
+                                        <i class="ph-bold ph-arrow-counter-clockwise"></i> Reset
                                     </button>
                                 </form>
                             @else
-                                <small class="text-muted">-</small>
+                                <span class="text-slate-200 text-lg">•</span>
                             @endif
                         </td>
                     </tr>
@@ -72,7 +135,4 @@
         </div>
     </div>
 </div>
-
-<style>
-</style>
 @endsection

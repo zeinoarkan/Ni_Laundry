@@ -1,6 +1,5 @@
 <?php
 
-// app/Http/Controllers/AuthController.php
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -24,11 +23,14 @@ class AuthController extends Controller
     public function formLoginUser() { return view('auth.login-user'); }
     
     public function loginUser(Request $request) {
-        // Cek login berdasarkan Nama (sesuai DB) atau No HP jika mau diubah
         $user = Pelanggan::where('nama', $request->nama)->first();
         if ($user && Hash::check($request->password, $user->password)) {
             Auth::guard('web')->login($user);
-            return redirect('/dashboard');
+            
+            // PERBAIKAN DISINI: 
+            // Dulu: return redirect('/dashboard'); 
+            // Sekarang: return redirect('/'); (Ke halaman utama)
+            return redirect('/'); 
         }
         return back()->with('error', 'Username atau Password salah');
     }
@@ -36,7 +38,7 @@ class AuthController extends Controller
     public function registerUser(Request $request) {
         Pelanggan::create([
             'nama' => $request->nama,
-            'password' => Hash::make($request->password), // Hashing password
+            'password' => Hash::make($request->password), 
             'no_hp' => $request->no_hp,
             'alamat' => $request->alamat
         ]);
@@ -49,6 +51,8 @@ class AuthController extends Controller
             return redirect('/admin/login');
         }
         Auth::guard('web')->logout();
-        return redirect('/login');
+        
+        // Logout kembali ke halaman utama (karena sekarang halaman utama publik)
+        return redirect('/'); 
     }
 }

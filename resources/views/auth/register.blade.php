@@ -1,21 +1,101 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <title>Daftar - Ni Laundry</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
-    <div class="card shadow p-4" style="width: 400px;">
-        <h4 class="text-center mb-3">Daftar Akun Baru</h4>
-        <form action="/register" method="POST">
-            @csrf
-            <div class="mb-2"><label>Nama Lengkap</label><input type="text" name="nama" class="form-control" required></div>
-            <div class="mb-2"><label>Password</label><input type="password" name="password" class="form-control" required></div>
-            <div class="mb-2"><label>No HP</label><input type="text" name="no_hp" class="form-control" required></div>
-            <div class="mb-3"><label>Alamat</label><textarea name="alamat" class="form-control" required></textarea></div>
-            <button type="submit" class="btn btn-success w-100">Daftar Sekarang</button>
-        </form>
-        <div class="text-center mt-3"><a href="/login">Sudah punya akun? Login</a></div>
+@extends('layouts.main')
+@section('title', 'Daftar Member Baru')
+
+@section('content')
+<div class="min-h-[85vh] flex items-center justify-center py-10">
+    
+    <div class="w-full max-w-5xl bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-glass border border-white/50 overflow-hidden grid lg:grid-cols-2 p-2 relative">
+        
+        <div class="hidden lg:block relative rounded-[2rem] overflow-hidden group">
+            <img src="https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=1887&auto=format&fit=crop" 
+            alt="Modern Laundry" 
+            class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-90 transition-transform duration-1000 group-hover:scale-105">
+            
+            <div class="absolute inset-0 bg-gradient-to-t from-brand-900/60 to-transparent"></div>
+            
+            <div class="relative z-10 h-full flex flex-col justify-end p-10 text-white">
+                <h2 class="text-3xl font-bold leading-tight mb-3">
+                    Start Your<br>Clean Journey.
+                </h2>
+                <p class="text-white/90 text-sm font-medium leading-relaxed max-w-xs">
+                    Bergabunglah sekarang. Antar jemput gratis, bonus poin, dan pakaian yang dirawat sepenuh hati.
+                </p>
+            </div>
+        </div>
+
+        <div class="p-8 md:p-12 flex flex-col justify-center bg-white/50">
+            
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">Buat Akun Baru</h1>
+                <p class="text-slate-500 font-medium">Lengkapi profil Anda untuk mulai mencuci.</p>
+            </div>
+
+            <form action="/register" method="POST" class="space-y-4" x-data="{ showPassword: false }">
+                @csrf
+                
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Nama Lengkap</label>
+                    <div class="relative group">
+                        <input type="text" name="nama" required placeholder="Nama Lengkap"
+                               class="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 text-sm rounded-2xl focus:bg-white focus:border-brand-500 block p-4 pl-12 outline-none transition-all placeholder:text-slate-400 font-normal">
+                        <div class="absolute inset-y-0 left-0 flex items-center px-4 text-slate-400 group-focus-within:text-brand-500 transition-colors">
+                            <i class="ph-bold ph-user text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">WhatsApp</label>
+                    <div class="relative group">
+                        <input type="number" name="no_hp" required placeholder="08xxxxxxxxxx"
+                               class="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 text-sm rounded-2xl focus:bg-white focus:border-brand-500 block p-4 pl-12 outline-none transition-all placeholder:text-slate-400 font-normal">
+                        <div class="absolute inset-y-0 left-0 flex items-center px-4 text-slate-400 group-focus-within:text-brand-500 transition-colors">
+                            <i class="ph-bold ph-whatsapp-logo text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Alamat</label>
+                    <div class="relative group">
+                        <textarea name="alamat" rows="2" required placeholder="Jalan, No Rumah..."
+                                  class="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 text-sm rounded-2xl focus:bg-white focus:border-brand-500 block p-4 pl-12 outline-none transition-all placeholder:text-slate-400 font-normal resize-none"></textarea>
+                        <div class="absolute top-4 left-0 flex items-start px-4 text-slate-400 group-focus-within:text-brand-500 transition-colors">
+                            <i class="ph-bold ph-map-pin text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Password</label>
+                    <div class="relative group">
+                        <input :type="showPassword ? 'text' : 'password'" name="password" required placeholder="••••••••"
+                               class="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 text-sm rounded-2xl focus:bg-white focus:border-brand-500 block p-4 pl-12 pr-12 outline-none transition-all placeholder:text-slate-400 font-normal">
+                        <div class="absolute inset-y-0 left-0 flex items-center px-4 text-slate-400 group-focus-within:text-brand-500 transition-colors">
+                            <i class="ph-bold ph-lock-key text-xl"></i>
+                        </div>
+                        <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 flex items-center px-4 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer outline-none">
+                            <i class="text-xl" :class="showPassword ? 'ph-bold ph-eye-slash' : 'ph-bold ph-eye'"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-4 px-6 rounded-2xl bg-brand-600 text-white font-bold text-sm shadow-lg shadow-brand-200 hover:shadow-glow hover:-translate-y-1 hover:bg-brand-700 transition-all duration-300 flex items-center justify-center gap-2 mt-2">
+                    <span>Daftar Sekarang</span>
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="mt-8 text-center pt-6 border-t border-slate-100">
+                <p class="text-sm font-medium text-slate-500">
+                    Sudah punya akun? 
+                    <a href="/login" class="font-bold text-brand-600 hover:text-brand-700 underline decoration-2 underline-offset-4 decoration-brand-200 hover:decoration-brand-500 transition-all">
+                        Login Disini
+                    </a>
+                </p>
+            </div>
+
+        </div>
     </div>
-</body>
-</html>
+</div>
+@endsection

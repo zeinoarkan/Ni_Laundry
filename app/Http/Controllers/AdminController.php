@@ -10,6 +10,7 @@ use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -27,28 +28,31 @@ class AdminController extends Controller
     }
 
     public function updateStatus(Request $request, $id) {
-        $pesanan = Pesanan::find($id);
-        $status_lama = $pesanan->status_pesanan;
+        $pesanan = Pesanan::with('layanan')->findOrFail($id);
         
-        // Update Status
+        $status_lama = $pesanan->status_pesanan;
         $pesanan->status_pesanan = $request->status_pesanan;
         $pesanan->save();
-
-        // LOGIKA SAAT PESANAN SELESAI
         if ($request->status_pesanan == 'Selesai' && $status_lama != 'Selesai') {
             
-            // 1. Ambil Data Pelanggan
             $pelanggan = Pelanggan::find($pesanan->id_pelanggan);
             
-            // 2. Hitung Bonus (Logika Lama)
-            $pelanggan->progres_kg += $pesanan->berat;
-            if ($pelanggan->progres_kg >= 8) {
-                $pelanggan->bonus += 1; // Tambah tiket bonus
-                $pelanggan->progres_kg -= 8; // Reset progres
+            $harga_layanan = $pesanan->layanan->harga;
+            $berat_poin = 0;
+
+            if ($harga_layanan > 0) {
+                $berat_poin = floor($pesanan->total_harga / $harga_layanan);
             }
+
+            $pelanggan->progres_kg += $berat_poin;
+
+            while ($pelanggan->progres_kg >= 8) {
+                $pelanggan->increment('bonus'); 
+                $pelanggan->progres_kg -= 8;    
+            }
+            
             $pelanggan->save();
 
-            // 3. KIRIM NOTIFIKASI WHATSAPP (BARU)
             try {
                 $pesanWA = "Halo Kak *{$pelanggan->nama}*! 👋\n\n";
                 $pesanWA .= "Kabar gembira, cucian Anda dengan ID Pesanan *#{$pesanan->id_pesanan}* sudah *SELESAI* dan siap diambil/diantar. 🧺✨\n\n";
@@ -59,7 +63,6 @@ class AdminController extends Controller
                 $this->sendWhatsapp($pelanggan->no_hp, $pesanWA);
                 
             } catch (\Exception $e) {
-                // Biarkan lanjut meski WA gagal (agar tidak error 500)
             }
         }
 
@@ -110,7 +113,6 @@ class AdminController extends Controller
     // MANAJEMEN PESANAN
 
     public function pesananIndex() {
-        // Tampilkan semua pesanan, urutkan dari yg terbaru
         $pesanan = Pesanan::with(['pelanggan', 'layanan'])
                    ->orderBy('id_pesanan', 'desc')
                    ->get();
@@ -127,7 +129,6 @@ class AdminController extends Controller
     public function pesananUpdate(Request $request, $id) {
         $pesanan = Pesanan::findOrFail($id);
         
-        // Admin bisa update berat dan status
         $pesanan->update([
             'berat' => $request->berat,
             'total_harga' => $request->total_harga, // Admin bisa manual set harga
@@ -142,38 +143,38 @@ class AdminController extends Controller
         $pesanan = Pesanan::findOrFail($id);
 
         if ($pesanan->status_pesanan == 'Selesai') {
-            
             $pelanggan = Pelanggan::find($pesanan->id_pelanggan);
-            
             if ($pelanggan) {
-                $pelanggan->progres_kg -= $pesanan->berat;
+                $harga_layanan = $pesanan->layanan->harga;
+                $berat_poin_dihapus = ($harga_layanan > 0) ? floor($pesanan->total_harga / $harga_layanan) : 0;
+
+                $pelanggan->progres_kg -= $berat_poin_dihapus;
+
                 while ($pelanggan->progres_kg < 0) {
-                    
                     if ($pelanggan->bonus > 0) {
-                        $pelanggan->decrement('bonus'); 
-                        $pelanggan->progres_kg += 8; 
+                        $pelanggan->decrement('bonus');
+                        $pelanggan->progres_kg += 8;
                     } else {
-                        // Jika bonus sudah 0 tapi masih minus, mentokkan ke 0
                         $pelanggan->progres_kg = 0;
                         break; 
                     }
                 }
-
                 $pelanggan->save();
             }
         }
-        // ------------------------------------------
 
-        // Hapus Data Pesanan
         $pesanan->delete();
+
+        if (Pesanan::count() == 0) {
+            DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = 1');
+        }    
         
-        return back()->with('success', 'Pesanan dihapus. Poin & Bonus pelanggan telah disesuaikan ulang.');
+        return back()->with('success', 'Pesanan dihapus.');
     }
 
     // CRUD ADMIN (PENGGUNA)
 
     public function userAdminIndex() {
-        // Ambil semua admin
         $admins = Admin::all();
         return view('admin.users.index', compact('admins'));
     }
@@ -183,7 +184,6 @@ class AdminController extends Controller
     }
 
     public function userAdminStore(Request $request) {
-        // Validasi sederhana (opsional)
         $request->validate([
             'username' => 'required|unique:admin,username',
             'password' => 'required|min:6'
@@ -191,7 +191,7 @@ class AdminController extends Controller
 
         Admin::create([
             'username' => $request->username,
-            'password' => Hash::make($request->password) // Enkripsi password
+            'password' => Hash::make($request->password) 
         ]);
 
         return redirect('/admin/users')->with('success', 'Admin baru berhasil ditambahkan');
@@ -209,7 +209,6 @@ class AdminController extends Controller
             'username' => $request->username
         ];
 
-        // Hanya update password jika input tidak kosong
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -220,7 +219,6 @@ class AdminController extends Controller
     }
 
     public function userAdminDestroy($id) {
-        // Mencegah admin menghapus dirinya sendiri saat sedang login
         if ($id == Auth::guard('admin')->id()) {
             return back()->with('error', 'Anda tidak bisa menghapus akun yang sedang digunakan!');
         }
@@ -230,7 +228,6 @@ class AdminController extends Controller
     }
 
     public function diskonIndex() {
-        // Ambil data pelanggan urut dari yang punya bonus, lalu yang progress-nya paling banyak
         $pelanggan = Pelanggan::orderBy('bonus', 'desc')
                               ->orderBy('progres_kg', 'desc')
                               ->get();
@@ -238,16 +235,14 @@ class AdminController extends Controller
         return view('admin.diskon.index', compact('pelanggan'));
     }
 
-    // Fitur Reset Bonus Manual (Opsional, jika admin memberikan bonus secara manual/offline)
     public function resetBonus($id) {
         $pelanggan = Pelanggan::findOrFail($id);
-        $pelanggan->bonus = 0; // Hilangkan bonus
+        $pelanggan->bonus = 0; 
         $pelanggan->save();
         
         return back()->with('success', 'Bonus pelanggan berhasil di-reset manual.');
     }
 
-    // --- FUNGSI PRIVAT UNTUK KIRIM WA (FONNTE) ---
     private function sendWhatsapp($nomor, $pesan) {
         $curl = curl_init();
 
@@ -263,7 +258,7 @@ class AdminController extends Controller
           CURLOPT_POSTFIELDS => array(
             'target' => $nomor,
             'message' => $pesan,
-            'countryCode' => '62', // Otomatis ubah 08xx jadi 628xx
+            'countryCode' => '62', 
           ),
           CURLOPT_HTTPHEADER => array(
             'Authorization: Z4RJR27QU6JaxbXVAt2a' 

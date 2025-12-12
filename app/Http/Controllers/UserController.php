@@ -22,44 +22,37 @@ class UserController extends Controller
     }
 
     public function storePesanan(Request $request) {
-        // 1. Ambil Data
         $layanan = Layanan::find($request->id_layanan);
         $user = Auth::user();
         
-        $berat_asli = $request->berat ?? 1; // Berat yang diinput user
-        $berat_tagihan = $berat_asli;       // Berat yang harus dibayar
-        $status_promo = false;              // Penanda dapat diskon atau tidak
+        $berat_asli = $request->berat ?? 1; 
+        $berat_tagihan = $berat_asli;       
+        $status_promo = false;              
 
-        // 2. LOGIKA PROMO LANGSUNG (> 8KG GRATIS 1KG)
-        // Jika pesanan ini beratnya LEBIH DARI 8 Kg
         if ($berat_asli > 8) {
-            $berat_tagihan = $berat_asli - 1; // Kurangi bayaran 1 Kg
+            $berat_tagihan = $berat_asli - 1;
             $status_promo = true;
         }
 
-        // Hitung Total Bayar
         $total_bayar = $berat_tagihan * $layanan->harga;
 
-        // 3. Simpan Pesanan
         $status_awal = ($total_bayar <= 0) ? 'Diproses' : 'Pending';
 
         $pesanan = Pesanan::create([
             'id_pelanggan' => $user->id_pelanggan,
             'id_layanan' => $request->id_layanan,
-            'berat' => $berat_asli,      // Simpan berat asli (misal: 9 Kg)
-            'total_harga' => $total_bayar, // Simpan harga diskon (harga 8 Kg)
+            'berat' => $berat_asli,      
+            'total_harga' => $total_bayar, 
             'status_pesanan' => $status_awal,
             'tanggal_pesan' => Carbon::now(),
             'metode' => $request->metode,
             'jumlah_bayar' => 0
         ]);
 
-        // 4. Jika Total Rp 0 (Gratis total), Langsung sukses
         if ($total_bayar <= 0) {
             return redirect('/riwayat')->with('success', 'Pesanan GRATIS (Promo > 8Kg).');
         }
 
-        // 5. Config Midtrans & Snap Token
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized = config('midtrans.is_sanitized');
@@ -68,7 +61,7 @@ class UserController extends Controller
         $params = array(
             'transaction_details' => array(
                 'order_id' => $pesanan->id_pesanan,
-                'gross_amount' => $total_bayar, // Tagih harga diskon
+                'gross_amount' => $total_bayar, 
             ),
             'customer_details' => array(
                 'first_name' => $user->nama,
@@ -84,7 +77,6 @@ class UserController extends Controller
             $pesanan->snap_token = $snapToken;
             $pesanan->save();
             
-            // Pesan notifikasi berbeda jika dapat diskon
             $pesan_sukses = $status_promo 
                 ? 'Selamat! Anda dapat potongan 1 Kg karena mencuci lebih dari 8 Kg.' 
                 : 'Pesanan berhasil dibuat. Silakan lakukan pembayaran.';
@@ -107,10 +99,9 @@ class UserController extends Controller
     public function paymentSuccess($id) {
         $pesanan = Pesanan::find($id);
         
-        // Cek apakah pesanan ada
         if($pesanan) {
-            $pesanan->status_pesanan = 'Diproses'; // Ubah status
-            $pesanan->jumlah_bayar = $pesanan->total_harga; // Anggap lunas
+            $pesanan->status_pesanan = 'Diproses'; 
+            $pesanan->jumlah_bayar = $pesanan->total_harga; 
             $pesanan->save();
         }
 
