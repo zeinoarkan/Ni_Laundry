@@ -1,59 +1,157 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Ni Laundry Web System
+1. Overview
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Ni Laundry Web System adalah aplikasi berbasis web yang dirancang untuk melakukan digitalisasi proses operasional Ni Laundry, mencakup manajemen pelanggan, layanan, transaksi, status cucian, dan laporan keuangan. Sistem ini menggantikan proses manual yang rawan kesalahan dan meningkatkan efisiensi melalui pencatatan terstruktur, pemantauan status real time, serta notifikasi otomatis kepada pelanggan. Pengembangan dilakukan menggunakan Laravel dan MySQL dengan pendekatan Agile.
 
-## About Laravel
+2. Key Features
+2.1 Admin/Pegawai
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Login dan autentikasi.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Manajemen layanan (tambah, ubah, hapus).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Manajemen pelanggan dan data profil.
 
-## Learning Laravel
+Pembuatan dan pemantauan pesanan.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Manajemen status cucian (Menunggu, Diproses, Selesai).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Validasi dan pencatatan pembayaran.
 
-## Laravel Sponsors
+Laporan dan rekap transaksi harian/mingguan/bulanan.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2.2 Pelanggan
 
-### Premium Partners
+Login dan pengelolaan akun.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Melihat daftar layanan dan detail harga.
 
-## Contributing
+Pemesanan layanan serta input berat cucian.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Pemantauan status cucian secara real time.
 
-## Code of Conduct
+Pemilihan metode pembayaran.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Notifikasi otomatis melalui WhatsApp.
 
-## Security Vulnerabilities
+3. System Description
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Sistem bekerja sebagai platform terintegrasi yang menghubungkan pelanggan dan admin/pegawai. Seluruh data layanan, pelanggan, dan transaksi dikelola dalam basis data terpusat. Aplikasi menerapkan standar keamanan berbasis HTTPS, enkripsi password, serta validasi input untuk memastikan integritas data. Frontend menggunakan Bootstrap untuk memastikan tampilan responsif di berbagai perangkat.
 
-## License
+4. User Categories
+Admin/Pegawai
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Aktor utama yang mengelola seluruh proses operasional. Memiliki akses penuh terhadap modul layanan, pelanggan, pesanan, status, dan laporan.
+
+Pelanggan
+
+Aktor yang melakukan pemesanan layanan, melihat status cucian, memilih pembayaran, dan menerima notifikasi.
+
+5. System Constraints
+
+Framework: Laravel (PHP).
+
+Database: MySQL.
+
+Minimal browser: Chrome, Firefox, Edge versi terbaru.
+
+Sistem hanya berjalan optimal pada koneksi internet stabil.
+
+Testimoni pelanggan diambil dari Google Maps (read-only).
+
+Seluruh lisensi perangkat lunak dan server disediakan oleh pemilik usaha.
+
+6. UI/UX Specification
+Responsiveness
+
+Mendukung perangkat mobile, tablet, dan desktop.
+
+Minimal resolusi layar 360 × 640 px.
+
+Interface Standards
+
+Palet warna utama: biru muda dan putih.
+
+Tombol utama menggunakan warna biru tua.
+
+Kode warna tombol aksi: Hijau (Simpan), Kuning (Edit), Merah (Hapus).
+
+Penggunaan breadcrumb pada setiap halaman untuk navigasi.
+
+Feedback and Notifications
+
+Pesan kesalahan ditampilkan dengan warna merah.
+
+Pesan berhasil ditampilkan dengan warna hijau.
+
+Notifikasi status dan promosi menggunakan popup alert.
+
+7. Hardware Requirements
+Admin/Pegawai
+
+Prosesor setara Intel i3 Gen 7 atau lebih tinggi.
+
+RAM minimal 4 GB (disarankan 8 GB).
+
+Penyimpanan minimal 128 GB SSD.
+
+Browser versi terbaru.
+
+Pelanggan
+
+Perangkat smartphone atau laptop.
+
+RAM minimal 2 GB.
+
+Browser versi terbaru.
+
+8. Software and Communication Requirements
+
+Protokol komunikasi menggunakan HTTPS dengan TLS/SSL.
+
+Enkripsi password menggunakan bcrypt.
+
+Pertukaran data antar komponen menggunakan JSON.
+
+Integrasi WhatsApp API untuk notifikasi otomatis.
+
+9. Functional Requirements
+Admin
+
+Manajemen layanan.
+
+Manajemen pelanggan.
+
+Manajemen pesanan.
+
+Pengaturan dan pembaruan status cucian.
+
+Validasi pembayaran.
+
+Pembuatan dan ekspor laporan transaksi.
+
+Pelanggan
+
+Login dan pengelolaan akun.
+
+Pemilihan layanan dan input berat cucian.
+
+Pemantauan status cucian.
+
+Pemilihan metode pembayaran.
+
+Riwayat transaksi.
+
+Penerimaan notifikasi otomatis.
+
+10. Development Methodology
+
+Pengembangan dilakukan dengan metode Scrum yang terdiri dari:
+
+Perencanaan sprint.
+
+Implementasi fitur dalam iterasi singkat.
+
+Pengujian berkala.
+
+Review dan evaluasi bersama pemilik usaha.
