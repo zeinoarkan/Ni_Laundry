@@ -18,14 +18,12 @@
                     Welcome Back
                 </span>
                 <h1 class="text-3xl md:text-5xl font-bold leading-tight mb-6">
-                    {{-- LOGIKA BARU: Handle Nama Null untuk Tamu --}}
                     Halo, {{ Auth::user()->nama ?? 'Pelanggan' }}! 
                 </h1>
                 <p class="text-brand-100 text-lg max-w-md mb-8 leading-relaxed">
                     Jangan biarkan cucian menumpuk. Serahkan pada kami, pakaian kembali bersih dan wangi.
                 </p>
                 <div class="flex gap-4">
-                    {{-- LOGIKA BARU: Jika Login -> Mulai, Jika Tamu -> Login --}}
                     @auth
                         <a href="/layanan" class="px-8 py-4 rounded-2xl bg-white text-brand-600 font-bold shadow-lg hover:bg-brand-50 hover:-translate-y-1 transition-all flex items-center gap-2 group/btn">
                             <span>Mulai Mencuci</span>
@@ -52,25 +50,17 @@
 
             <div class="my-8 relative z-10">
                 <div class="flex justify-between items-end mb-3">
-                    {{-- LOGIKA BARU: Default 0 jika Tamu --}}
                     <span class="text-5xl font-extrabold text-slate-800 tracking-tight">{{ Auth::user()->progres_kg ?? 0 }}<span class="text-xl text-slate-400 font-semibold">/8kg</span></span>
-                    
-                    @if(Auth::check() && Auth::user()->bonus > 0)
-                        <span class="px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center gap-1 shadow-sm animate-bounce">
-                            <i class="ph-fill ph-ticket"></i> {{ Auth::user()->bonus }} Tiket Bonus!
-                        </span>
-                    @endif
                 </div>
                 
                 <div class="w-full h-5 bg-slate-100/80 rounded-full overflow-hidden border border-slate-200/80 shadow-inner p-1">
-                    {{-- LOGIKA BARU: Hitung persentase aman untuk tamu --}}
                     @php 
                         $kg = Auth::user()->progres_kg ?? 0;
                         $width = min(($kg / 8) * 100, 100);
                     @endphp
                     <div x-data="{ width: 0 }"
                          x-init="setTimeout(() => width = {{ $width }}, 800)"
-                         class="h-full rounded-full transition-all duration-[2000ms] ease-out bg-gradient-to-r from-brand-400 via-brand-500 to-fresh-400 shadow-[0_2px_10px_rgba(59,130,246,0.4)] relative overflow-hidden"
+                         class="h-full rounded-full transition-all duration-[2000ms] ease-out bg-gradient-to-r from-emerald-400 to-emerald-600 shadow-[0_0_10px_rgba(16,185,129,0.5)] relative overflow-hidden"
                          :style="`width: ${width}%`">
                          <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
                     </div>

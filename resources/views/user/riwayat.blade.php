@@ -3,7 +3,7 @@
 
 @section('content')
 
-<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('Mid-client-3uRO8uoHQJBxU2ZN') }}"></script>
 
 <div class="max-w-4xl mx-auto space-y-8">
     
@@ -84,16 +84,23 @@
                         @endif
                     </div>
 
-                    @if($p->status_pesanan == 'Pending' && $p->snap_token)
-                        <button onclick="bayar('{{ $p->id_pesanan }}', '{{ $p->snap_token }}')" 
-                                class="w-full md:w-auto px-6 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-sm shadow-lg hover:shadow-glow hover:-translate-y-0.5 hover:bg-brand-600 transition-all duration-300 flex items-center justify-center gap-2">
-                            <i class="ph-bold ph-credit-card"></i> Bayar
-                        </button>
-                    @elseif($p->status_pesanan == 'Diproses')
-                         <span class="text-xs font-bold text-slate-400 flex items-center gap-1">
-                            <i class="ph-fill ph-check-circle"></i> Lunas
-                         </span>
-                    @endif
+                   @if($p->status_pesanan == 'Pending' && $p->total_harga > 0)
+                            @if($p->snap_token)
+                                <button onclick="bayarSekarang('{{ $p->snap_token }}', '{{ $p->id_pesanan }}')" 
+                                        class="px-6 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-sm shadow-lg hover:bg-brand-700 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                                    <i class="ph-bold ph-credit-card"></i> Bayar Sekarang
+                                </button>
+                            @else
+                                <span class="text-xs text-red-500 font-medium bg-red-50 px-3 py-1 rounded-lg">
+                                    Error: Token Pembayaran Gagal
+                                </span>
+                            @endif
+                        @elseif($p->status_pesanan == 'Pending' && $p->total_harga == 0)
+                             <span class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-1 rounded-lg">
+                                Gratis (Promo Member) - Menunggu Konfirmasi Admin
+                            </span>
+                        @endif
+                    </div>
                 </div>
             </div>
             @endforeach
@@ -102,12 +109,33 @@
 </div>
 
 <script type="text/javascript">
-    function bayar(id_pesanan, token) {
-        snap.pay(token, {
-            onSuccess: function(result){ window.location.href = '/pesanan/sukses/' + id_pesanan; },
-            onPending: function(result){ alert("Menunggu pembayaran!"); location.reload(); },
-            onError: function(result){ alert("Gagal!"); location.reload(); }
+    function bayarSekarang(snapToken, orderId) {
+        if(!snapToken) {
+            alert("Token pembayaran tidak ditemukan!");
+            return;
+        }
+
+                snap.pay(snapToken, {
+            // Jika pembayaran sukses
+            onSuccess: function(result){
+                window.location.href = '/pesanan/sukses/' + orderId;
+            },
+            // Jika pending
+            onPending: function(result){
+                alert("Menunggu pembayaran Anda!");
+                location.reload();
+            },
+            // Jika error
+            onError: function(result){
+                alert("Pembayaran gagal!");
+                location.reload();
+            },
+            // Jika ditutup
+            onClose: function(){
+                alert('Anda menutup popup tanpa menyelesaikan pembayaran');
+            }
         });
     }
+</script>
 </script>
 @endsection
