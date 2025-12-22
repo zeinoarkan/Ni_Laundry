@@ -13,6 +13,7 @@
     "env": {
         "APP_ENV": "production",
         "APP_DEBUG": "false",
-        "APP_URL": "https://nilaundry.vercel.app/"
+        "APP_URL": "https://nilaundry.vercel.app/",
+        "LOG_CHANNEL": "stderr"
     }
 }
