@@ -76,7 +76,7 @@
 
     <div data-aos="fade-up" data-aos-offset="200">
         <div class="text-center mb-12">
-             <span class="text-brand-600 font-bold text-sm uppercase tracking-wider">Kenapa Memilih Kami?</span>
+             <span class="text-brand-600 font-bold text-3xl uppercase tracking-wider">Kenapa Memilih Kami?</span>
              <h2 class="text-3xl font-bold text-slate-900 mt-2">Layanan Premium, Hasil Maksimal.</h2>
         </div>
 
@@ -132,7 +132,7 @@
         </div>
 
         <div data-aos="fade-left" data-aos-delay="200">
-            <span class="inline-block px-3 py-1 rounded-full bg-brand-50 text-brand-600 font-bold text-[10px] uppercase tracking-wider border border-brand-100 mb-4">
+            <span class="inline-block px-3 py-1 rounded-full bg-brand-50 text-brand-600 font-bold text-3xl uppercase tracking-wider border border-brand-100 mb-4">
                 Tentang Ni Laundry
             </span>
             <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 leading-tight">
@@ -152,7 +152,7 @@
         <div class="absolute -top-1/2 -left-1/2 w-full h-full bg-brand-500/20 blur-[150px] rounded-full pointer-events-none"></div>
         
         <div class="relative z-10 max-w-3xl mx-auto">
-            <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
+            <h2 class="text-4xl md:text-3xl font-extrabold text-white mb-6 leading-tight">
                 Siap Merasakan<br>Perbedaannya?
             </h2>
             <p class="text-slate-300 text-xl mb-10 font-medium leading-relaxed">
