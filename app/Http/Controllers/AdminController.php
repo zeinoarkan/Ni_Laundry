@@ -120,10 +120,41 @@ class AdminController extends Controller
 
     // MANAJEMEN PESANAN
 
-    public function pesananIndex() {
-        $pesanan = Pesanan::with(['pelanggan', 'layanan'])
-                   ->orderBy('id_pesanan', 'desc')
-                   ->get();
+    public function pesananIndex(Request $request) {
+        $query = Pesanan::with(['pelanggan', 'layanan']);
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            
+            $query->where(function($q) use ($search) {
+                
+                $q->whereHas('pelanggan', function($subQ) use ($search) {
+                    $subQ->where('nama', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('layanan', function($subQ) use ($search) {
+                    $subQ->where('nama_layanan', 'like', '%' . $search . '%')
+                         ->orWhere('jenis', 'like', '%' . $search . '%');
+                })
+                ->orWhere('status_pesanan', 'like', '%' . $search . '%')
+                ->orWhere('id_pesanan', 'like', '%' . $search . '%')
+                ->orWhere('tanggal_pesan', 'like', '%' . $search . '%');
+                
+                $bulanIndo = [
+                    'januari' => 1, 'februari' => 2, 'maret' => 3, 'april' => 4,
+                    'mei' => 5, 'juni' => 6, 'juli' => 7, 'agustus' => 8,
+                    'september' => 9, 'oktober' => 10, 'november' => 11, 'desember' => 12
+                ];
+
+                foreach ($bulanIndo as $nama => $angka) {
+                    if (stripos($nama, $search) !== false) {
+                        $q->orWhereMonth('tanggal_pesan', $angka);
+                    }
+                }
+            });
+        }
+
+        $pesanan = $query->orderBy('id_pesanan', 'desc')->get();
+
         return view('admin.pesanan.index', compact('pesanan'));
     }
 

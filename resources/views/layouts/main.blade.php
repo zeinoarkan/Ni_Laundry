@@ -18,9 +18,9 @@
                 extend: {
                     fontFamily: { sans: ['"Outfit"', 'sans-serif'] },
                     fontSize: {
-                        'xs': '1rem', 'sm': '1.25rem', 'base': '1.5rem', 
-                        'lg': '1.75rem', 'xl': '2rem', '2xl': '2.25rem', 
-                        '3xl': '2.5rem', '4xl': '2.75rem',    
+                        'xs': '0.625rem', 'sm': '0.75rem', 'base': '0.875rem', 
+                        'lg': '1rem', 'xl': '1.125rem', '2xl': '1.25rem', 
+                        '3xl': '1.5rem', '4xl': '1.625rem',    
                     },
                     colors: {
                         brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 900: '#1e3a8a' },
