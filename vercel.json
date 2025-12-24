@@ -10,7 +10,7 @@
             "dest": "/public/favicon.ico"
         },
         {
-            "src": "/(build|assets|css|js|images)/(.*)",
+            "src": "/(build|assets|css|js|img)/(.*)",
             "dest": "/public/$1/$2"
         },
         {
