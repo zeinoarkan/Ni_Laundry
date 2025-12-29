@@ -80,7 +80,7 @@
 
             {{-- Bagian Tengah: Info Layanan (Icon Rotate & Scale) --}}
             <div class="flex items-start gap-4 mb-6">
-                <div class="w-12 h-12 rounded-2xl shrink-0 flex items-center justify-center text-2xl bg-brand-50 text-brand-600 group-hover:scale-110 group-hover:rotate-[15deg] group-hover:bg-brand-600 group-hover:text-white transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm group-hover:shadow-brand-200/50">
+                <div class="w-12 h-12 rounded-2xl shrink-0 flex items-center justify-center text-2xl bg-brand-50 text-brand-600 group-hover:scale-110 group-hover:bg-brand-600 group-hover:text-white transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm group-hover:shadow-brand-200/50">
                     <i class="ph-duotone ph-t-shirt"></i>
                 </div>
                 
