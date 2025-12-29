@@ -29,13 +29,18 @@
     <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden relative">
         
         <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
-            <div class="relative w-full max-w-sm">
-                <input type="text" placeholder="Cari nama pelanggan..." 
-                       class="w-full bg-white border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm font-bold focus:outline-none focus:border-brand-500 transition-all shadow-sm">
-                <div class="absolute inset-y-0 left-0 flex items-center px-3 text-slate-400">
+            <form action="{{ url()->current() }}" method="GET" class="relative w-full max-w-sm">
+                <input type="text" 
+                    name="search" 
+                    value="{{ request('search') }}"
+                    placeholder="Cari nama, layanan, status, atau Tanggal" 
+                    class="w-full bg-white border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm font-bold focus:outline-none focus:border-brand-500 transition-all shadow-sm">
+                    
+                <button type="submit" class="absolute inset-y-0 left-0 flex items-center px-3 text-slate-400 hover:text-slate-600 transition-colors">
                     <i class="ph-bold ph-magnifying-glass"></i>
-                </div>
-            </div>
+                </button>
+            </form>
+            
             <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">
                 Total: {{ $pesanan->count() }} Data
             </div>
