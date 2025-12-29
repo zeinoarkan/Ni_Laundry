@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', 'Layanan & Order')
+@section('title', 'Katalog dan Pesan Layanan')
 
 @section('content')
 
@@ -24,15 +24,70 @@
 
         <div class="grid md:grid-cols-2 gap-5">
             @foreach($layanan as $l)
+            
+            {{-- LOGIKA DETEKSI ICON BERDASARKAN NAMA LAYANAN --}}
+            @php
+                $name = strtolower($l->nama_layanan);
+
+                // Deteksi Keyword
+                if(str_contains($name, 'setrika')) {
+                    $icon = 'ph-duotone ph-dots-three';
+                    $color = 'bg-orange-50 text-orange-600';
+                } elseif(str_contains($name, 'karpet')) {
+                    $icon = 'ph-duotone ph-rug';
+                    $color = 'bg-red-50 text-red-600';
+                } elseif(str_contains($name, 'sepatu') || str_contains($name, 'sneaker')) {
+                    $icon = 'ph-duotone ph-sneaker';
+                    $color = 'bg-yellow-50 text-yellow-600';
+                } elseif(str_contains($name, 'sprei') || str_contains($name, 'selimut') || str_contains($name, 'bantal')) {
+                    $icon = 'ph-duotone ph-bed';
+                    $color = 'bg-purple-50 text-purple-600';
+                } elseif(str_contains($name, 'bed') || str_contains($name, 'selimut') || str_contains($name, 'bantal')) {
+                    $icon = 'ph-duotone ph-bed';
+                    $color = 'bg-purple-50 text-purple-600';
+                } elseif(str_contains($name, 'boneka')) {
+                    $icon = 'ph-duotone ph-smiley';
+                    $color = 'bg-pink-50 text-pink-600';
+                } elseif(str_contains($name, 'jas') || str_contains($name, 'dry')) {
+                    $icon = 'ph-duotone ph-coat-hanger';
+                    $color = 'bg-slate-50 text-slate-600';
+                } elseif(str_contains($name, 'jaket') || str_contains($name, 'dry')) {
+                    $icon = 'ph-duotone ph-coat-hanger';
+                    $color = 'bg-slate-50 text-slate-600';
+                } elseif(str_contains($name, 'almamater') || str_contains($name, 'dry')) {
+                    $icon = 'ph-duotone ph-coat-hanger';
+                    $color = 'bg-slate-50 text-slate-600';
+                } elseif(str_contains($name, 'tas')) {
+                    $icon = 'ph-duotone ph-handbag';
+                    $color = 'bg-amber-50 text-amber-600';
+                } elseif(str_contains($name, 'reguler')) {
+                    $icon = 'ph-duotone ph-scales';
+                    $color = 'bg-blue-50 text-blue-600';
+                } elseif(str_contains($name, 'kilat')) {
+                    $icon = 'ph-duotone ph-scales';
+                    $color = 'bg-blue-50 text-blue-600';
+                } elseif(str_contains($name, 'express')) {
+                    $icon = 'ph-duotone ph-scales';
+                    $color = 'bg-blue-50 text-blue-600';
+                } elseif(str_contains($name, 'kemeja') || str_contains($name, 'pcs')) {
+                    $icon = 'ph-duotone ph-t-shirt';
+                    $color = 'bg-emerald-50 text-emerald-600';
+                } elseif(str_contains($name, 'cuci') || str_contains($name, 'tambahan')) {
+                    $icon = 'ph-duotone ph-washing-machine';
+                    $color = 'bg-emerald-50 text-emerald-600';
+                }
+            @endphp
+
             <div class="group relative bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(59,130,246,0.15)] hover:border-brand-200 hover:-translate-y-2 transition-all duration-500 ease-out h-full flex flex-col justify-between"
                  data-aos="fade-up" 
                  data-aos-delay="{{ ($loop->index % 4) * 100 }}">
                 
                 <div class="flex justify-between items-start mb-4">
-                    <div class="w-12 h-12 rounded-2xl {{ $l->jenis == 'Kiloan' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600' }} flex items-center justify-center text-2xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)">
-                        <i class="{{ $l->jenis == 'Kiloan' ? 'ph-duotone ph-scales' : 'ph-duotone ph-t-shirt' }}"></i>
+                    <div class="w-12 h-12 rounded-2xl {{ $color }} flex items-center justify-center text-2xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)">
+                        <i class="{{ $icon }}"></i>
                     </div>
-                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border {{ $l->jenis == 'Kiloan' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-blue-50 text-blue-600 border-blue-100' }}">
+                    
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border {{ $l->jenis == 'Kiloan' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-orange-50 text-orange-600 border-orange-100' }}">
                         {{ $l->jenis }}
                     </span>
                 </div>

@@ -54,13 +54,11 @@
                 <div class="flex justify-between items-start mb-6">
                     <div>
                         <div class="flex items-center gap-2 mb-1">
-                            <i class="ph-fill ph-ticket text-brand-600 text-xl"></i>
-                            <h3 class="font-bold text-slate-800 text-lg uppercase tracking-wider">Loyalty Points</h3>
+                            <h3 class="font-bold text-slate-800 text-lg uppercase tracking-wider">Progres Diskon</h3>
                         </div>
                         <p class="text-slate-500 text-sm font-medium">Kejar diskon spesial Anda.</p>
                     </div>
                     <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-2xl shadow-sm">
-                        <i class="ph-duotone ph-chart-pie-slice"></i>
                     </div>
                 </div>
 
@@ -99,11 +97,11 @@
     </div>
 
     <div data-aos="fade-up" data-aos-offset="100">
-        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-            <div>
-                 <span class="text-brand-600 font-bold text-sm uppercase tracking-widest mb-2 block">Mengapa Kami?</span>
-                 <h2 class="text-3xl md:text-4xl font-bold text-slate-900">Kualitas Tanpa Kompromi.</h2>
+        <div class="text-center mb-12">
+                <span class="text-brand-600 font-bold text-3xl uppercase tracking-wider">Kenapa Memilih Kami?</span>
+                <h2 class="text-3xl font-bold text-slate-900 mt-2">Layanan Premium, Hasil Maksimal.</h2>
             </div>
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
             <a href="/layanan" class="group flex items-center gap-2 text-slate-500 hover:text-brand-600 font-bold transition-colors">
                 Lihat Semua Layanan <i class="ph-bold ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
             </a>
@@ -136,25 +134,57 @@
         </div>
     </div>
 
-    <div class="rounded-[3rem] bg-slate-900 overflow-hidden relative p-12 md:p-20 text-center group shadow-2xl isolate"
-         data-aos="zoom-in-up" data-aos-offset="100">
-         
-        <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] group-hover:scale-105 transition-transform duration-[3s]"></div>
+    <div id="about" class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center scroll-mt-32">
         
-        <div class="absolute -top-[50%] -left-[20%] w-[80%] h-[80%] bg-brand-500/20 blur-[120px] rounded-full -z-10 animate-pulse"></div>
-        <div class="absolute -bottom-[50%] -right-[20%] w-[80%] h-[80%] bg-fresh-500/20 blur-[120px] rounded-full -z-10"></div>
+        <div class="relative group" data-aos="fade-right">
+            <div class="rounded-[3rem] overflow-hidden border border-slate-100 shadow-glass relative z-10">
+               <img src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=1080&auto=format&fit=crop" 
+               alt="Ni Laundry Service"
+               loading="lazy"
+                class="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-1000">
+            </div>
+
+            <div class="absolute -top-10 -left-10 w-40 h-40 bg-brand-50 rounded-full blur-3xl -z-0"></div>
+            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-fresh-50 rounded-full blur-3xl -z-0"></div>
+
+            <div class="absolute bottom-8 left-8 right-8 z-20 bg-white/80 backdrop-blur-md p-6 rounded-[2rem] border border-white/60 shadow-lg flex items-center gap-4 animate-float">
+                <div>
+                    <h4 class="font-bold text-slate-900 text-sm">100% Garansi Bersih</h4>
+                    <p class="text-xs text-slate-500 font-medium">Jika tidak bersih, kami cuci ulang gratis.</p>
+                </div>
+            </div>
+        </div>
+
+        <div data-aos="fade-left" data-aos-delay="200">
+            <span class="inline-block px-3 py-1 rounded-full bg-brand-50 text-brand-600 font-bold text-3xl uppercase tracking-wider border border-brand-100 mb-4">
+                Tentang Ni Laundry
+            </span>
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 leading-tight">
+                Lebih Dari Sekadar<br>Mencuci Pakaian.
+            </h2>
+            <p class="text-slate-500 text-lg leading-relaxed mb-8">
+                Kami percaya bahwa pakaian yang bersih memberikan kepercayaan diri. Ni Laundry hadir dengan misi menyederhanakan hidup Anda melalui layanan perawatan pakaian berstandar profesional.
+            </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="rounded-[3rem] bg-slate-900 overflow-hidden relative p-12 md:p-20 text-center group shadow-2xl"
+         data-aos="zoom-in-up" data-aos-offset="150">
+         
+        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] group-hover:scale-110 transition-transform duration-[2000ms]"></div>
+        <div class="absolute -top-1/2 -left-1/2 w-full h-full bg-brand-500/20 blur-[150px] rounded-full pointer-events-none"></div>
         
         <div class="relative z-10 max-w-3xl mx-auto">
-            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight tracking-tight">
-                Rasakan Bedanya.<br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-fresh-300">Cuci Sekarang.</span>
+            <h2 class="text-4xl md:text-3xl font-extrabold text-white mb-6 leading-tight">
+                Siap Merasakan<br>Perbedaannya?
             </h2>
-            <p class="text-slate-300 text-lg md:text-xl mb-10 font-medium leading-relaxed">
-                Bergabunglah dengan ribuan pelanggan yang telah beralih ke cara mencuci yang lebih cerdas.
+            <p class="text-slate-300 text-xl mb-10 font-medium leading-relaxed">
+                Nikmati kemudahan layanan laundry premium dalam satu genggaman. Hemat waktu, tenaga, dan biaya.
             </p>
-            <a href="/layanan" id="magnetic-cta" class="inline-flex px-10 py-5 rounded-2xl bg-white text-slate-900 font-bold text-lg hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-all items-center gap-3">
-                <span>Pesan Layanan</span>
-                <i class="ph-bold ph-arrow-right"></i>
+            <a href="/layanan" class="inline-flex px-10 py-5 rounded-2xl bg-white text-slate-900 font-bold text-lg hover:scale-105 hover:shadow-glow transition-all group/cta">
+                <span>Pesan Sekarang Juga</span>
+                <i class="ph-bold ph-arrow-right ml-2 group-hover/cta:translate-x-1 transition-transform"></i>
             </a>
         </div>
     </div>
