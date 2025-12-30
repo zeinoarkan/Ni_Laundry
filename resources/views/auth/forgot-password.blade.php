@@ -7,7 +7,7 @@
          data-aos="fade-up">
          
          <div class="mb-8 text-center">
-            <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+            <div class="w-16 h-16 bg-[#25D366]/10 text-[#25D366] rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
                 <i class="ph-fill ph-whatsapp-logo"></i>
             </div>
             <h1 class="text-2xl font-bold text-slate-800">Kirim Kode OTP</h1>
