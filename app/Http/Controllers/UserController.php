@@ -29,39 +29,49 @@ class UserController extends Controller
         $berat_tagihan = $berat_asli;       
         $status_promo = false;              
 
+        // Logika Promo (> 8kg diskon 1kg)
         if ($berat_asli > 8) {
             $berat_tagihan = $berat_asli - 1;
             $status_promo = true;
         }
 
         $total_bayar = $berat_tagihan * $layanan->harga;
-
+        
+        // Tentukan status awal
         $status_awal = ($total_bayar <= 0) ? 'Diproses' : 'Pending';
 
+        // 1. SIMPAN KE DATABASE DULU
         $pesanan = Pesanan::create([
             'id_pelanggan' => $user->id_pelanggan,
             'id_layanan' => $request->id_layanan,
             'berat' => $berat_asli,      
             'total_harga' => $total_bayar, 
             'status_pesanan' => $status_awal,
-            'tanggal_pesan' => Carbon::now(),
+            'tanggal_pesan' => now(), // Gunakan helper now() lebih simpel
             'metode' => $request->metode,
             'jumlah_bayar' => 0
         ]);
 
+        // Jika Gratis (Rp 0), langsung redirect tanpa ke Midtrans
         if ($total_bayar <= 0) {
             return redirect('/riwayat')->with('success', 'Pesanan GRATIS (Promo > 8Kg).');
         }
 
+        // 2. KONFIGURASI MIDTRANS
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized = config('midtrans.is_sanitized');
         Config::$is3ds = config('midtrans.is_3ds');
 
+        // === [PERBAIKAN UTAMA ADA DI SINI] ===
+        // Kita buat Order ID Unik dengan format: ORD-{ID_PESANAN}-{KODE_ACAK}
+        // Contoh: ORD-15-654a3b12
+        $custom_order_id = 'ORD-' . $pesanan->id_pesanan . '-' . uniqid();
+
         $params = array(
             'transaction_details' => array(
-                'order_id' => $pesanan->id_pesanan,
-                'gross_amount' => $total_bayar, 
+                'order_id' => $custom_order_id, // Gunakan ID unik ini
+                'gross_amount' => (int) $total_bayar, // Pastikan integer
             ),
             'customer_details' => array(
                 'first_name' => $user->nama,
@@ -73,7 +83,10 @@ class UserController extends Controller
         );
 
         try {
+            // Request Snap Token ke Midtrans
             $snapToken = Snap::getSnapToken($params);
+            
+            // Simpan Token ke Database
             $pesanan->snap_token = $snapToken;
             $pesanan->save();
             
@@ -84,6 +97,8 @@ class UserController extends Controller
             return redirect('/riwayat')->with('success', $pesan_sukses);
 
         } catch (\Exception $e) {
+            // Jika gagal request ke Midtrans, hapus pesanan agar tidak nyampah di DB
+            $pesanan->delete(); 
             return back()->with('error', 'Gagal memproses: ' . $e->getMessage());
         }
     }

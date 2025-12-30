@@ -92,6 +92,8 @@
                                             'bg-gradient-to-r from-amber-300 to-amber-500' 
                                             }}"
                                     :style="`width: ${width}%`">
+                                    <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+                                    </div>
                                 </div>
                             </div>
                             

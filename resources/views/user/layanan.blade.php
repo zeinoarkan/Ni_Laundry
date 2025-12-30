@@ -27,7 +27,6 @@
                 </div>
                 
                 <h3 class="text-lg font-bold text-slate-800 mb-1">{{ $l->nama_layanan }}</h3>
-                <p class="text-slate-400 text-sm mb-4 line-clamp-2">Treatment deep clean & steam finish.</p>
                 
                 <div class="flex items-baseline gap-1 mt-auto pt-4 border-t border-slate-50">
                     <span class="text-2xl font-bold text-brand-600">Rp {{ number_format($l->harga, 0, ',', '.') }}</span>

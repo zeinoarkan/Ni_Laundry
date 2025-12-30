@@ -28,45 +28,53 @@ class AdminController extends Controller
     }
 
     public function updateStatus(Request $request, $id) {
-        $pesanan = Pesanan::with('layanan')->findOrFail($id);
+        $pesanan = Pesanan::with(['layanan', 'pelanggan'])->findOrFail($id);
         
         $status_lama = $pesanan->status_pesanan;
         $pesanan->status_pesanan = $request->status_pesanan;
         $pesanan->save();
+
         if ($request->status_pesanan == 'Selesai' && $status_lama != 'Selesai') {
             
-            $pelanggan = Pelanggan::find($pesanan->id_pelanggan);
+            $pelanggan = $pesanan->pelanggan; 
             
-            $harga_layanan = $pesanan->layanan->harga;
-            $berat_poin = 0;
-
-            if ($harga_layanan > 0) {
-                $berat_poin = floor($pesanan->total_harga / $harga_layanan);
-            }
-
-            $pelanggan->progres_kg += $berat_poin;
-
-            while ($pelanggan->progres_kg >= 8) {
-                $pelanggan->increment('bonus'); 
-                $pelanggan->progres_kg -= 8;    
-            }
-            
-            $pelanggan->save();
-
-            try {
-                $pesanWA = "Halo Kak *{$pelanggan->nama}*! 👋\n\n";
-                $pesanWA .= "Kabar gembira, cucian Anda dengan ID Pesanan *#{$pesanan->id_pesanan}* sudah *SELESAI* dan siap diambil/diantar. 🧺✨\n\n";
-                $pesanWA .= "Total Berat: {$pesanan->berat} Kg\n";
-                $pesanWA .= "Total Tagihan: Rp " . number_format($pesanan->total_harga, 0, ',', '.') . "\n\n";
-                $pesanWA .= "Terima kasih telah mempercayakan pakaian Anda pada Ni Laundry!";
-
-                $this->sendWhatsapp($pelanggan->no_hp, $pesanWA);
+            if ($pelanggan && $pesanan->layanan) {
                 
-            } catch (\Exception $e) {
+                $harga_per_kg = $pesanan->layanan->harga;
+                $berat_poin = 0;
+
+                if ($harga_per_kg > 0) {
+                    $berat_poin = $pesanan->total_harga / $harga_per_kg;
+                }
+
+                $pelanggan->progres_kg += $berat_poin;
+
+                while ($pelanggan->progres_kg >= 8) {
+                    $pelanggan->increment('bonus'); 
+                    $pelanggan->progres_kg -= 8;    
+                }
+                
+                $pelanggan->save();
+
+                try {
+                    $pesanWA = "Halo Kak *{$pelanggan->nama}*! \n\n";
+                    $pesanWA .= "Kabar gembira, cucian Anda dengan ID Pesanan *#{$pesanan->id_pesanan}* sudah *SELESAI* dan siap diambil/diantar.\n\n";
+                    $pesanWA .= "Total Berat: {$pesanan->berat} Kg\n";
+                    $pesanWA .= "Total Tagihan: Rp " . number_format($pesanan->total_harga, 0, ',', '.') . "\n\n";
+                    
+                    $pesanWA .= "Progres Poin: {$pelanggan->progres_kg}/8 Kg\n";
+                    
+                    $pesanWA .= "Terima kasih telah mempercayakan pakaian Anda pada Ni Laundry!";
+
+                    $this->sendWhatsapp($pelanggan->no_hp, $pesanWA);
+                    
+                } catch (\Exception $e) {
+                }
+
             }
         }
 
-        return back()->with('success', 'Status diperbarui & Notifikasi WA dikirim (jika nomor valid)!');
+        return back()->with('success', 'Status Selesai. Poin dihitung berdasarkan nominal bayar.');
     }
 
     // CRUD LAYANAN
@@ -112,10 +120,41 @@ class AdminController extends Controller
 
     // MANAJEMEN PESANAN
 
-    public function pesananIndex() {
-        $pesanan = Pesanan::with(['pelanggan', 'layanan'])
-                   ->orderBy('id_pesanan', 'desc')
-                   ->get();
+    public function pesananIndex(Request $request) {
+        $query = Pesanan::with(['pelanggan', 'layanan']);
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            
+            $query->where(function($q) use ($search) {
+                
+                $q->whereHas('pelanggan', function($subQ) use ($search) {
+                    $subQ->where('nama', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('layanan', function($subQ) use ($search) {
+                    $subQ->where('nama_layanan', 'like', '%' . $search . '%')
+                         ->orWhere('jenis', 'like', '%' . $search . '%');
+                })
+                ->orWhere('status_pesanan', 'like', '%' . $search . '%')
+                ->orWhere('id_pesanan', 'like', '%' . $search . '%')
+                ->orWhere('tanggal_pesan', 'like', '%' . $search . '%');
+                
+                $bulanIndo = [
+                    'januari' => 1, 'februari' => 2, 'maret' => 3, 'april' => 4,
+                    'mei' => 5, 'juni' => 6, 'juli' => 7, 'agustus' => 8,
+                    'september' => 9, 'oktober' => 10, 'november' => 11, 'desember' => 12
+                ];
+
+                foreach ($bulanIndo as $nama => $angka) {
+                    if (stripos($nama, $search) !== false) {
+                        $q->orWhereMonth('tanggal_pesan', $angka);
+                    }
+                }
+            });
+        }
+
+        $pesanan = $query->orderBy('id_pesanan', 'desc')->get();
+
         return view('admin.pesanan.index', compact('pesanan'));
     }
 
@@ -140,37 +179,44 @@ class AdminController extends Controller
     }
 
     public function pesananDestroy($id) {
-        $pesanan = Pesanan::findOrFail($id);
+    $pesanan = Pesanan::with(['layanan', 'pelanggan'])->findOrFail($id);
 
-        if ($pesanan->status_pesanan == 'Selesai') {
-            $pelanggan = Pelanggan::find($pesanan->id_pelanggan);
-            if ($pelanggan) {
-                $harga_layanan = $pesanan->layanan->harga;
-                $berat_poin_dihapus = ($harga_layanan > 0) ? floor($pesanan->total_harga / $harga_layanan) : 0;
-
-                $pelanggan->progres_kg -= $berat_poin_dihapus;
-
-                while ($pelanggan->progres_kg < 0) {
-                    if ($pelanggan->bonus > 0) {
-                        $pelanggan->decrement('bonus');
-                        $pelanggan->progres_kg += 8;
-                    } else {
-                        $pelanggan->progres_kg = 0;
-                        break; 
-                    }
-                }
-                $pelanggan->save();
-            }
-        }
-
-        $pesanan->delete();
-
-        if (Pesanan::count() == 0) {
-            DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = 1');
-        }    
+    if ($pesanan->status_pesanan == 'Selesai') {
         
-        return back()->with('success', 'Pesanan dihapus.');
+        $pelanggan = $pesanan->pelanggan;
+        
+        if ($pelanggan && $pesanan->layanan) {
+            
+            $harga_layanan = $pesanan->layanan->harga;
+            
+            $berat_poin_dihapus = ($harga_layanan > 0) 
+                ? floor($pesanan->total_harga / $harga_layanan) 
+                : 0;
+
+            $pelanggan->progres_kg -= $berat_poin_dihapus;
+
+            while ($pelanggan->progres_kg < 0) {
+                if ($pelanggan->bonus > 0) {
+                    $pelanggan->decrement('bonus'); 
+                    $pelanggan->progres_kg += 8;    
+                } else {
+                    $pelanggan->progres_kg = 0;     
+                    break; 
+                }
+            }
+            
+            $pelanggan->save();
+        }
     }
+
+    $pesanan->delete();
+
+    if (Pesanan::count() == 0) {
+        DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = 1');
+    }    
+    
+    return back()->with('success', 'Pesanan berhasil dihapus.');
+}
 
     // CRUD ADMIN (PENGGUNA)
 
