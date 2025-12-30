@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', 'Administrator Login')
+@section('title', 'Login Administrator')
 
 @section('content')
 <div class="min-h-[80vh] flex items-center justify-center relative">

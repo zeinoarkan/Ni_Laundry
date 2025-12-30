@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
-    <title>@yield('title', 'Ni Laundry - Layanan Premium')</title>
+    <title>@yield('title', 'Ni Laundry')</title>
     <meta name="description" content="Jasa laundry kiloan dan satuan terbaik dengan teknologi modern.">
     <meta name="theme-color" content="#0f172a">
 
