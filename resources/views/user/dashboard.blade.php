@@ -9,7 +9,7 @@
         <div class="lg:col-span-7 relative overflow-hidden rounded-[2.5rem] bg-brand-600 shadow-glow group min-h-[350px] md:min-h-[400px] flex items-center" 
              data-aos="fade-right" data-aos-duration="1000">
              
-            <img src="https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=2070&auto=format&fit=crop" 
+            <img src="https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=2070&auto=format&fit=crop"  alt="Laundry Background"
                  class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay transition-transform duration-[3000ms] group-hover:scale-110 ease-out">
             
             <div class="absolute inset-0 bg-gradient-to-r from-brand-900 via-brand-800/80 to-transparent"></div>

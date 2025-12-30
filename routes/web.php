@@ -5,25 +5,27 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
 // --- 1. HALAMAN UTAMA (PUBLIC) ---
 // Logika: Langsung masuk ke Dashboard Controller, tidak redirect ke login lagi
 Route::get('/', [UserController::class, 'index'])->name('dashboard');
 
 // --- 2. AUTHENTICATION ---
 Route::get('/login', [AuthController::class, 'formLoginUser'])->name('login');
-Route::post('/login', [AuthController::class, 'loginUser']);
+Route::post('/login', [AuthController::class, 'loginUser'])->middleware('throttle:5,1');
 Route::get('/register', function() { return view('auth.register'); });
 Route::post('/register', [AuthController::class, 'registerUser']);
 
 Route::get('/admin/login', [AuthController::class, 'formLoginAdmin']);
 Route::post('/admin/login', [AuthController::class, 'loginAdmin']);
 Route::get('/logout', [AuthController::class, 'logout']);
+
+Route::get('/forgot-password', [AuthController::class, 'formForgotPassword']);
+
+Route::post('/forgot-password', [AuthController::class, 'sendOtp']);
+
+Route::get('/verify-otp', [AuthController::class, 'formVerifyOtp']);
+
+Route::post('/reset-password', [AuthController::class, 'processResetPassword']);
 
 // --- 3. AREA PELANGGAN (MEMBER ONLY) ---
 // Dashboard sudah dikeluarkan dari sini, sisanya tetap wajib login

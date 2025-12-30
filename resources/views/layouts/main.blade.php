@@ -149,8 +149,11 @@
 
         <div x-show="mobileOpen" x-collapse x-cloak class="md:hidden absolute top-full left-0 w-full px-4 mt-2">
             <div class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-4 flex flex-col gap-3">
+                auth
                 <a href="/" class="p-3 font-medium text-slate-700">Beranda</a>
                 <a href="/layanan" class="p-3 font-medium text-slate-700">Layanan</a>
+                <a href="/riwayat" class="p-3 font-medium text-slate-700">Riwayat</a>
+                endauth
                 @if(Auth::check() || Auth::guard('admin')->check())
                      <a href="/logout" class="p-3 font-bold text-red-500 bg-red-50 rounded-xl">Logout</a>
                 @else

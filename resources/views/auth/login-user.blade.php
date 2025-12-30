@@ -58,7 +58,7 @@
                 <div class="space-y-1.5" data-aos="fade-up" data-aos-delay="400">
                     <div class="flex justify-between items-center ml-1">
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Password</label>
-                        <a href="#" class="text-xs font-bold text-brand-600 hover:underline">Lupa Password?</a>
+                        <a href="/forgot-password" class="text-xs font-bold text-brand-600 hover:underline">Lupa Password?</a>
                     </div>
                     <div class="relative group">
                         <input :type="showPassword ? 'text' : 'password'" name="password" required placeholder="••••••••"
