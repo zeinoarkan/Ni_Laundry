@@ -89,12 +89,6 @@
                         Daftar Gratis
                     </a>
                 </p>
-                
-                <div class="mt-8 pt-6 border-t border-slate-100">
-                     <a href="/admin/login" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-slate-600 bg-slate-50 px-4 py-2 rounded-full hover:bg-slate-100 transition-all">
-                        <i class="ph-fill ph-shield-check"></i> Akses Admin
-                    </a>
-                </div>
             </div>
 
         </div>
