@@ -31,7 +31,7 @@
 
                 // Deteksi Keyword
                 if(str_contains($name, 'setrika')) {
-                    $icon = 'ph-duotone ph-dots-three';
+                    $icon = 'mdi mdi-iron-outline';
                     $color = 'bg-orange-50 text-orange-600';
                 } elseif(str_contains($name, 'karpet')) {
                     $icon = 'ph-duotone ph-rug';
@@ -46,7 +46,7 @@
                     $icon = 'ph-duotone ph-bed';
                     $color = 'bg-purple-50 text-purple-600';
                 } elseif(str_contains($name, 'boneka')) {
-                    $icon = 'ph-duotone ph-smiley';
+                    $icon = 'ph-duotone ph-finn-the-human';
                     $color = 'bg-pink-50 text-pink-600';
                 } elseif(str_contains($name, 'jas') || str_contains($name, 'dry')) {
                     $icon = 'ph-duotone ph-coat-hanger';

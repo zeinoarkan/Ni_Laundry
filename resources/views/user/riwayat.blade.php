@@ -51,15 +51,52 @@
             $color = 'bg-brand-50 text-brand-600';
 
             // Logika deteksi icon singkat
-            if(str_contains($name, 'setrika')) { $icon = 'ph-duotone ph-dots-three'; $color = 'bg-orange-50 text-orange-600'; } 
-            elseif(str_contains($name, 'karpet')) { $icon = 'ph-duotone ph-rug'; $color = 'bg-red-50 text-red-600'; } 
-            elseif(str_contains($name, 'sepatu') || str_contains($name, 'sneaker')) { $icon = 'ph-duotone ph-sneaker'; $color = 'bg-yellow-50 text-yellow-600'; } 
-            elseif(str_contains($name, 'sprei') || str_contains($name, 'bed')) { $icon = 'ph-duotone ph-bed'; $color = 'bg-purple-50 text-purple-600'; } 
-            elseif(str_contains($name, 'jas') || str_contains($name, 'dry')) { $icon = 'ph-duotone ph-coat-hanger'; $color = 'bg-slate-50 text-slate-600'; } 
-            elseif(str_contains($name, 'tas')) { $icon = 'ph-duotone ph-handbag'; $color = 'bg-amber-50 text-amber-600'; } 
-            elseif(str_contains($name, 'reguler')) { $icon = 'ph-duotone ph-scales'; $color = 'bg-blue-50 text-blue-600'; } 
-            elseif(str_contains($name, 'kemeja') || str_contains($name, 'pcs')) { $icon = 'ph-duotone ph-t-shirt'; $color = 'bg-emerald-50 text-emerald-600'; } 
-            elseif(str_contains($name, 'cuci')) { $icon = 'ph-duotone ph-washing-machine'; $color = 'bg-emerald-50 text-emerald-600'; }
+            if(str_contains($name, 'setrika')) {
+                    $icon = 'mdi mdi-iron-outline';
+                    $color = 'bg-orange-50 text-orange-600';
+                } elseif(str_contains($name, 'karpet')) {
+                    $icon = 'ph-duotone ph-rug';
+                    $color = 'bg-red-50 text-red-600';
+                } elseif(str_contains($name, 'sepatu') || str_contains($name, 'sneaker')) {
+                    $icon = 'ph-duotone ph-sneaker';
+                    $color = 'bg-yellow-50 text-yellow-600';
+                } elseif(str_contains($name, 'sprei') || str_contains($name, 'selimut') || str_contains($name, 'bantal')) {
+                    $icon = 'ph-duotone ph-bed';
+                    $color = 'bg-purple-50 text-purple-600';
+                } elseif(str_contains($name, 'bed') || str_contains($name, 'selimut') || str_contains($name, 'bantal')) {
+                    $icon = 'ph-duotone ph-bed';
+                    $color = 'bg-purple-50 text-purple-600';
+                } elseif(str_contains($name, 'boneka')) {
+                    $icon = 'ph-duotone ph-finn-the-human';
+                    $color = 'bg-pink-50 text-pink-600';
+                } elseif(str_contains($name, 'jas') || str_contains($name, 'dry')) {
+                    $icon = 'ph-duotone ph-coat-hanger';
+                    $color = 'bg-slate-50 text-slate-600';
+                } elseif(str_contains($name, 'jaket') || str_contains($name, 'dry')) {
+                    $icon = 'ph-duotone ph-coat-hanger';
+                    $color = 'bg-slate-50 text-slate-600';
+                } elseif(str_contains($name, 'almamater') || str_contains($name, 'dry')) {
+                    $icon = 'ph-duotone ph-coat-hanger';
+                    $color = 'bg-slate-50 text-slate-600';
+                } elseif(str_contains($name, 'tas')) {
+                    $icon = 'ph-duotone ph-handbag';
+                    $color = 'bg-amber-50 text-amber-600';
+                } elseif(str_contains($name, 'reguler')) {
+                    $icon = 'ph-duotone ph-scales';
+                    $color = 'bg-blue-50 text-blue-600';
+                } elseif(str_contains($name, 'kilat')) {
+                    $icon = 'ph-duotone ph-scales';
+                    $color = 'bg-blue-50 text-blue-600';
+                } elseif(str_contains($name, 'express')) {
+                    $icon = 'ph-duotone ph-scales';
+                    $color = 'bg-blue-50 text-blue-600';
+                } elseif(str_contains($name, 'kemeja') || str_contains($name, 'pcs')) {
+                    $icon = 'ph-duotone ph-t-shirt';
+                    $color = 'bg-emerald-50 text-emerald-600';
+                } elseif(str_contains($name, 'cuci') || str_contains($name, 'tambahan')) {
+                    $icon = 'ph-duotone ph-washing-machine';
+                    $color = 'bg-emerald-50 text-emerald-600';
+                }
         @endphp
 
         {{-- CARD ITEM DENGAN AOS --}}
