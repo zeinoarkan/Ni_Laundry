@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta name="description" content="Layanan laundry kiloan dan satuan terbaik dengan teknologi modern. Kami merawat pakaian Anda dengan standar kebersihan nasional, rapi, dan wangi.">
+    <meta name="keywords" content="laundry kiloan, laundry satuan, cuci baju, laundry terdekat, ni laundry, laundry bersih, dry cleaning">
+    <meta name="author" content="Ni Laundry">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:title" content="Ni Laundry - Layanan Laundry Modern & Higienis">
+    <meta property="og:description" content="Solusi cuci pakaian bersih, wangi, dan rapi dengan standar internasional. Pesan sekarang!">
+    <meta property="og:image" content="{{ asset('img/logo.png') }}">
+
     <title>Ni Laundry</title>
     <link rel="icon" href="{{ asset('img/logo.png') }}" type="image/png">
    
@@ -79,8 +89,6 @@
                             </form>
                         </div>
                     @else
-                        <a href="/" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('/') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Beranda</a>
-                        <a href="/layanan" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('layanan') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Layanan</a>
                         <a href="/login" class="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-brand-600 hover:shadow-glow hover:-translate-y-0.5 transition-all duration-300">
                             Login
                         </a>
@@ -135,6 +143,8 @@
                         </button>
                     </form>
                 @else
+                    <a href="/" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('/') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Beranda</a>
+                    <a href="/layanan" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('layanan') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Layanan</a>
                     <a href="/login" class="p-3 rounded-xl font-bold bg-slate-900 text-white text-center shadow-lg mt-2">Login Member</a>
                 @endif
             </div>
