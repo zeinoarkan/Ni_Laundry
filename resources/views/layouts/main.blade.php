@@ -95,7 +95,9 @@
                     @endif
                 </div>
 
-                <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-2 text-slate-800 rounded-lg hover:bg-white/50 transition-colors">
+                <button @click="mobileOpen = !mobileOpen" aria-label="Mobile-menu" class="lg:hidden p-2 text-slate-800 rounded-lg hover:bg-white/50 transition-colors">
+                    <i class="ph-bold ph-list text-2xl"></i>
+                </button>
                     <i class="ph-bold ph-list text-2xl"></i>
                 </button>
             </div>
@@ -183,14 +185,14 @@
                         Layanan laundry dengan teknologi modern. Kami merawat pakaian Anda dengan standar kebersihan internasional dan pelayanan sepenuh hati.
                     </p>
                     <div class="flex gap-3">
-                        <a href="https://www.instagram.com/ni.laundry" target="_blank" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-all"><i class="ph-fill ph-instagram-logo text-lg"></i></a>
-                        <a href="https://web.facebook.com/profile.php?id=61582451486766#" target="_blank" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-all"><i class="ph-fill ph-facebook-logo text-lg"></i></a>
-                        <a href="https://wa.me/+6282147556964" target="_blank" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-all"><i class="ph-fill ph-whatsapp-logo text-lg"></i></a>
+                        <a href="https://www.instagram.com/ni.laundry" target="_blank" aria-label="Instagram" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-all"><i class="ph-fill ph-instagram-logo text-lg"></i></a>
+                        <a href="https://web.facebook.com/profile.php?id=61582451486766#" target="_blank" aria-label="Facebook" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-all"><i class="ph-fill ph-facebook-logo text-lg"></i></a>
+                        <a href="https://wa.me/+6282147556964" target="_blank" aria-label="WhatsApp" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-all"><i class="ph-fill ph-whatsapp-logo text-lg"></i></a>
                     </div>
                 </div>
 
                 <div class="lg:col-span-2 space-y-4 md:space-y-6">
-                    <h4 class="font-bold text-lg">Layanan</h4>
+                    <h3 class="font-bold text-lg">Layanan</h3>
                     <ul class="space-y-3 md:space-y-4 text-sm text-slate-400">
                         <li><a href="/layanan" class="hover:text-brand-400 transition-colors flex items-center gap-2 group"><i class="ph-bold ph-caret-right opacity-0 group-hover:opacity-100 transition-opacity -ml-4 group-hover:ml-0"></i> Cuci Kiloan</a></li>
                         <li><a href="/layanan" class="hover:text-brand-400 transition-colors flex items-center gap-2 group"><i class="ph-bold ph-caret-right opacity-0 group-hover:opacity-100 transition-opacity -ml-4 group-hover:ml-0"></i> Cuci Satuan</a></li>
@@ -199,7 +201,7 @@
                 </div>
 
                 <div class="lg:col-span-2 space-y-4 md:space-y-6">
-                    <h4 class="font-bold text-lg">Perusahaan</h4>
+                    <h3 class="font-bold text-lg">Perusahaan</h3>
                     <ul class="space-y-3 md:space-y-4 text-sm text-slate-400">
                         <li><a href="/#about" class="hover:text-brand-400 transition-colors">Tentang Kami</a></li>
                         <li><a href="https://www.google.com/maps?q=-7.7766983,110.3455633&z=17&hl=en" target="_blank" class="hover:text-brand-400 transition-colors flex items-center gap-2 group">Lokasi Outlet <i class="ph-bold ph-arrow-square-out opacity-0 group-hover:opacity-100 transition-opacity text-xs"></i></a></li>

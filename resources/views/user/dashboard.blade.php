@@ -47,7 +47,7 @@
             <div>
                 <div class="flex items-center gap-3 mb-4">
                     <div>
-                        <h3 class="font-bold text-slate-800 text-lg md:text-xl">Progres Diskon</h3>
+                        <h2 class="font-bold text-slate-800 text-lg md:text-xl">Progres Diskon</h2>
                         <p class="text-slate-500 text-xs md:text-sm font-medium">Kumpulkan poin untuk cuci gratis.</p>
                     </div>
                 </div>
