@@ -11,12 +11,9 @@
         <div class="lg:col-span-3 relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-brand-600 shadow-glow group min-h-[400px] md:min-h-[450px]" 
              data-aos="fade-right">
              
-           <img src="https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=1920&auto=format&fit=crop" 
-           srcset="https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=60&w=480&auto=format&fit=crop 480w, 
-           https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=70&w=800&auto=format&fit=crop 800w, 
-           https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=1200&auto=format&fit=crop 1200w, 
-           https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=1920&auto=format&fit=crop 1920w" 
-            sizes="100vw" loading="lazy" fetchpriority=high alt="image background" class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay transition-transform duration-1000 group-hover:scale-110">
+            <img src="https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=2070&auto=format&fit=crop" 
+                 loading="lazy"
+                 alt="image background" class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay transition-transform duration-1000 group-hover:scale-110">
             <div class="absolute inset-0 bg-gradient-to-r from-brand-900/90 to-brand-600/40"></div>
             
             <div class="relative z-10 p-6 md:p-12 h-full flex flex-col justify-center items-start text-white">
@@ -125,13 +122,10 @@
         <div class="relative group" data-aos="fade-right">
             {{-- Wrapper Gambar --}}
             <div class="rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-slate-100 shadow-glass relative z-10">
-            <div class="rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-slate-100 shadow-glass relative z-10 bg-slate-200">
-    <img src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=1080&auto=format&fit=crop" 
-         srcset="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=400&auto=format&fit=crop 400w,
-                 https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=800&auto=format&fit=crop 800w,
-                 https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=1200&auto=format&fit=crop 1200w"
-         sizes="(max-width: 768px) 100vw, 50vw" alt="Ni Laundry Service" loading="lazy" width="800" height="500" class="w-full h-[300px] md:h-[500px] object-cover hover:scale-105 transition-transform duration-1000 block">
-</div>
+               <img src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=1080&auto=format&fit=crop" 
+               alt="Ni Laundry Service"
+               loading="lazy"
+               class="w-full h-[300px] md:h-[500px] object-cover hover:scale-105 transition-transform duration-1000">
             </div>
 
             {{-- Blobs: Posisi diatur agar tidak keluar layar mobile secara ekstrem --}}
