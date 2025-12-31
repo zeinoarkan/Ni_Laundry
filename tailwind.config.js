@@ -1,3 +1,5 @@
+import defaultTheme from 'tailwindcss/defaultTheme';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -8,7 +10,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Outfit"', 'sans-serif'],
+        // PERUBAHAN DI SINI:
+        // Menggunakan 'Outfit' (tanpa kutip ganda) agar connect ke NPM
+        // Menambahkan '...defaultTheme.fontFamily.sans' agar ada backup font sistem jika loading
+        sans: ['Outfit', ...defaultTheme.fontFamily.sans],
       },
       fontSize: {
         'xs': '0.625rem', 
