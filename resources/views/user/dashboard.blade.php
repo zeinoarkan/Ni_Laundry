@@ -16,7 +16,7 @@
            https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=70&w=800&auto=format&fit=crop 800w, 
            https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=1200&auto=format&fit=crop 1200w, 
            https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=1920&auto=format&fit=crop 1920w" 
-            sizes="100vw" loading="lazy" decoding="async" alt="image background" class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay transition-transform duration-1000 group-hover:scale-110">
+            sizes="100vw" loading="lazy" fetchpriority=high alt="image background" class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay transition-transform duration-1000 group-hover:scale-110">
             <div class="absolute inset-0 bg-gradient-to-r from-brand-900/90 to-brand-600/40"></div>
             
             <div class="relative z-10 p-6 md:p-12 h-full flex flex-col justify-center items-start text-white">
