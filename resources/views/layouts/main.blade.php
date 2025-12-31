@@ -12,10 +12,10 @@
     <meta property="og:url" content="{{ url('/') }}">
     <meta property="og:title" content="Ni Laundry - Layanan Laundry Modern & Higienis">
     <meta property="og:description" content="Solusi cuci pakaian bersih, wangi, dan rapi dengan standar internasional. Pesan sekarang!">
-    <meta property="og:image" content="{{ asset('img/logo.png') }}">
+    <meta property="og:image" content="{{ asset('img/logo.webp') }}">
 
     <title>Ni Laundry</title>
-    <link rel="icon" href="{{ asset('img/logo.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('img/logo.webp') }}" type="image/webp">
    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,7 +52,7 @@
             <div class="flex justify-between items-center">
                
                 <a href="/" class="flex items-center gap-2 md:gap-3 group shrink-0">
-                    <img src="{{ asset('img/logo.png') }}" alt="Ni Laundry" class="h-8 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                    <img src="{{ asset('img/logo.webp') }}" width="150" height="40" alt="Ni Laundry" class="h-8 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
                    
                     <span class="text-xl md:text-2xl font-bold text-slate-800 tracking-tight group-hover:text-brand-600 transition-colors">
                         Ni Laundry<span class="text-fresh-500">.</span>
@@ -174,7 +174,7 @@
                
                 <div class="lg:col-span-4 space-y-6">
                     <a href="/" class="flex items-center gap-2 group w-fit">
-                        <img src="{{ asset('img/logo.png') }}" alt="Ni Laundry" class="h-8 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                        <img src="{{ asset('img/logo.webp') }}" width="150" height="40" alt="Ni Laundry" class="h-8 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
                         <span class="text-xl md:text-2xl font-bold tracking-tight">
                             Ni Laundry<span class="text-fresh-400">.</span>
                         </span>
