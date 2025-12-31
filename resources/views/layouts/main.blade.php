@@ -17,11 +17,16 @@
     <title>Ni Laundry</title>
     <link rel="icon" href="{{ asset('img/logo.png') }}" type="image/png">
    
-    {{-- HAPUS: Link Google Fonts & AOS CSS (Sudah di app.css) --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- HAPUS: Script Alpine & Phosphor Icons (Sudah di app.js) --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <style>
         [x-cloak] { display: none !important; }
@@ -31,7 +36,6 @@
                 radial-gradient(at 0% 0%, hsla(213,100%,88%,1) 0, transparent 50%),
                 radial-gradient(at 100% 100%, hsla(189,100%,88%,1) 0, transparent 50%);
             background-attachment: fixed;
-            /* Font Outfit sudah di-handle oleh Tailwind font-sans */
         }
     </style>
 </head>
@@ -211,7 +215,10 @@
         </div>
     </footer>
 
-    {{-- Script AOS yang lama sudah dihapus karena dipindah ke app.js --}}
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+       AOS.init({ once: true, mirror: false, duration: 600, easing: 'ease-out-cubic', offset: 50, throttleDelay: 99 });
+    </script>
 
 </body>
 </html>
