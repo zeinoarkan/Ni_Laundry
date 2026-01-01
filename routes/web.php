@@ -19,7 +19,7 @@ Route::get('/layanan', [UserController::class, 'layanan'])->name('layanan'); // 
 // Guest Only (Hanya bisa diakses jika BELUM login)
 Route::get('/login', [AuthController::class, 'formLoginUser'])->name('login');
 Route::post('/login', [AuthController::class, 'loginUser'])->middleware('throttle:5,1');
-Route::get('/register', function() { return view('auth.register'); });
+Route::get('/register', function() { return view('auth.register'); })->name('register');
 Route::post('/register', [AuthController::class, 'registerUser']);
 
 Route::get('/admin/login', [AuthController::class, 'formLoginAdmin']);
