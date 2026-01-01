@@ -24,7 +24,7 @@ Route::post('/register', [AuthController::class, 'registerUser']);
 
 Route::get('/admin/login', [AuthController::class, 'formLoginAdmin']);
 Route::post('/admin/login', [AuthController::class, 'loginAdmin']);
-Route::get('/logout', [AuthController::class, 'logout']);
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/forgot-password', [AuthController::class, 'formForgotPassword']);
 
