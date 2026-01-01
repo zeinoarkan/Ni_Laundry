@@ -55,4 +55,118 @@ class AuthController extends Controller
         // Logout kembali ke halaman utama (karena sekarang halaman utama publik)
         return redirect('/'); 
     }
+
+    public function formForgotPassword() {
+        return view('auth.forgot-password');
+    }
+
+    // 2. Proses Kirim OTP
+    public function sendOtp(Request $request) {
+        $request->validate([
+            'no_hp' => 'required',
+        ]);
+
+        // Cari user berdasarkan No HP
+        $user = Pelanggan::where('no_hp', $request->no_hp)->first();
+
+        if (!$user) {
+            return back()->with('error', 'Nomor HP tidak terdaftar dalam sistem kami.');
+        }
+
+        // Generate 6 digit OTP
+        $otp = rand(100000, 999999);
+
+        // Simpan OTP & ID User ke Session (Berlaku 5 menit)
+        Session::put('reset_otp', $otp);
+        Session::put('reset_user_id', $user->id_pelanggan); // Sesuaikan primary key tabel Anda
+        Session::put('reset_expires', now()->addMinutes(5));
+
+        // Pesan WhatsApp
+        $message = "*RESET PASSWORD NI LAUNDRY*\n\n";
+        $message .= "Halo {$user->nama},\n";
+        $message .= "Kode OTP Anda adalah: *{$otp}*\n\n";
+        $message .= "Kode ini berlaku selama 5 menit. Jangan berikan kepada siapapun.";
+
+        // Kirim via Fonnte
+        $this->kirimPesanFonnte($user->no_hp, $message);
+
+        // Arahkan ke halaman input OTP
+        return redirect('/verify-otp')->with('success', 'Kode OTP telah dikirim ke WhatsApp Anda.');
+    }
+
+    // 3. Tampilkan Halaman Input OTP & Password Baru
+    public function formVerifyOtp() {
+        if (!Session::has('reset_otp')) {
+            return redirect('/forgot-password')->with('error', 'Sesi habis, silakan ulangi permintaan.');
+        }
+        return view('auth.verify-otp');
+    }
+
+    // 4. Proses Verifikasi & Ganti Password
+    public function processResetPassword(Request $request) {
+        $request->validate([
+            'otp' => 'required|numeric',
+            'password' => 'required|min:5'
+        ]);
+
+        // Cek Session
+        $sessionOtp = Session::get('reset_otp');
+        $sessionExpires = Session::get('reset_expires');
+        $userId = Session::get('reset_user_id');
+
+        // Validasi
+        if (!$sessionOtp || now()->greaterThan($sessionExpires)) {
+            return redirect('/forgot-password')->with('error', 'Kode OTP kadaluarsa. Silakan minta ulang.');
+        }
+
+        if ($request->otp != $sessionOtp) {
+            return back()->with('error', 'Kode OTP salah!');
+        }
+
+        // Update Password
+        $user = Pelanggan::find($userId);
+        if ($user) {
+            $user->update([
+                'password' => Hash::make($request->password)
+            ]);
+            
+            // Hapus Session
+            Session::forget(['reset_otp', 'reset_user_id', 'reset_expires']);
+
+            return redirect('/login')->with('success', 'Password berhasil diubah! Silakan login.');
+        }
+
+        return back()->with('error', 'Terjadi kesalahan sistem.');
+    }
+
+    // --- FUNGSI PRIVAT FONNTE ---
+    private function kirimPesanFonnte($target, $pesan) {
+        $token = 'Z4RJR27QU6JaxbXVAt2a'; 
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => 'https://api.fonnte.com/send',
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'POST',
+          CURLOPT_POSTFIELDS => array(
+            'target' => $target,
+            'message' => $pesan,
+            'countryCode' => '62',
+          ),
+          CURLOPT_HTTPHEADER => array(
+            "Authorization: $token"
+          ),
+        ));
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+        
+        return $response;
+    }
 }

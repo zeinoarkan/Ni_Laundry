@@ -54,7 +54,7 @@
                 <div class="space-y-1.5">
                     <div class="flex justify-between items-center ml-1">
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Password</label>
-                        <a href="#" class="text-xs font-bold text-brand-600 hover:underline">Lupa Password?</a>
+                        <a href="/forgot-password" class="text-xs font-bold text-brand-600 hover:underline">Lupa Password?</a>
                     </div>
                     <div class="relative group">
                         <input :type="showPassword ? 'text' : 'password'" name="password" required placeholder="••••••••"
@@ -84,12 +84,6 @@
                         Daftar Gratis
                     </a>
                 </p>
-                
-                <div class="mt-8 pt-6 border-t border-slate-100">
-                     <a href="/admin/login" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-slate-600 bg-slate-50 px-4 py-2 rounded-full hover:bg-slate-100 transition-all">
-                        <i class="ph-fill ph-shield-check"></i> Akses Admin
-                    </a>
-                </div>
             </div>
 
         </div>

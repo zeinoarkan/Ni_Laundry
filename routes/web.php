@@ -17,17 +17,22 @@ Route::get('/layanan', [UserController::class, 'layanan'])->name('layanan'); // 
 
 // --- 2. AUTHENTICATION ---
 // Guest Only (Hanya bisa diakses jika BELUM login)
-Route::middleware('guest')->group(function() {
-    Route::get('/login', [AuthController::class, 'formLoginUser'])->name('login');
-    Route::post('/login', [AuthController::class, 'loginUser']);
-    Route::get('/register', function() { return view('auth.register'); })->name('register');
-    Route::post('/register', [AuthController::class, 'registerUser']);
-    Route::get('/admin/login', [AuthController::class, 'formLoginAdmin'])->name('admin.login');
-    Route::post('/admin/login', [AuthController::class, 'loginAdmin']);
-});
+Route::get('/login', [AuthController::class, 'formLoginUser'])->name('login');
+Route::post('/login', [AuthController::class, 'loginUser'])->middleware('throttle:5,1');
+Route::get('/register', function() { return view('auth.register'); });
+Route::post('/register', [AuthController::class, 'registerUser']);
 
-// Logout (Harus POST dan Login)
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth:web,admin');
+Route::get('/admin/login', [AuthController::class, 'formLoginAdmin']);
+Route::post('/admin/login', [AuthController::class, 'loginAdmin']);
+Route::get('/logout', [AuthController::class, 'logout']);
+
+Route::get('/forgot-password', [AuthController::class, 'formForgotPassword']);
+
+Route::post('/forgot-password', [AuthController::class, 'sendOtp']);
+
+Route::get('/verify-otp', [AuthController::class, 'formVerifyOtp']);
+
+Route::post('/reset-password', [AuthController::class, 'processResetPassword']);
 
 // --- 3. AREA MEMBER (Wajib Login User) ---
 Route::middleware('auth:web')->group(function () {
