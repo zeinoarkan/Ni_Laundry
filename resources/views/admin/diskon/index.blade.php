@@ -78,11 +78,6 @@
                             
                             <div class="relative w-full h-4 bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner group">
                                 
-                                <div class="absolute inset-0 z-20 flex w-full h-full px-[12.5%]">
-                                    @for($i = 1; $i < 8; $i++)
-                                        <div class="w-px h-full bg-white/50 flex-1 border-r border-white/40"></div>
-                                    @endfor
-                                </div>
 
                                 <div x-data="{ width: 0 }"
                                     x-init="setTimeout(() => width = {{ $persen }}, 300)"
