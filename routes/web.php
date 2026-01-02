@@ -31,9 +31,9 @@ Route::get('/pesanan/sukses/{id}', [UserController::class, 'paymentSuccess'])->n
 Route::middleware('auth:admin')->group(function () {
 Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     
-Route::get('/admin/layanan', [AdminController::class, 'layananIndex'])->name('admin.layanan.index'); // Halaman Index
-Route::get('/admin/layanan/create', [AdminController::class, 'layananCreate'])->name('admin.layanan.create'); // Form Tambah
-Route::post('/admin/layanan', [AdminController::class, 'layananStore'])->name('admin.layanan.store'); // Proses Simpan
+Route::get('/admin/layanan', [AdminController::class, 'layananIndex'])->name('admin.layanan.index'); 
+Route::get('/admin/layanan/create', [AdminController::class, 'layananCreate'])->name('admin.layanan.create'); 
+Route::post('/admin/layanan', [AdminController::class, 'layananStore'])->name('admin.layanan.store'); 
 Route::get('/admin/layanan/{id}/edit', [AdminController::class, 'layananEdit'])->name('admin.layanan.edit'); // Form Edit
 Route::put('/admin/layanan/{id}', [AdminController::class, 'layananUpdate'])->name('admin.layanan.update'); // Proses Update
 Route::delete('/admin/layanan/{id}', [AdminController::class, 'layananDestroy'])->name('admin.layanan.destroy'); // Proses Hapus
@@ -48,10 +48,10 @@ Route::post('/admin/pesanan/{id}/update-status', [AdminController::class, 'updat
 
 Route::get('/admin/users', [AdminController::class, 'userAdminIndex'])->name('admin.users.index');
 Route::get('/admin/users/create', [AdminController::class, 'userAdminCreate'])->name('admin.users.create');
-Route::get('/admin/users', [AdminController::class, 'userAdminStore'])->name('admin.users.store');
-Route::get('/admin/users', [AdminController::class, 'userAdminEdit'])->name('admin.users.edit');
-Route::get('/admin/users', [AdminController::class, 'userAdminUpdate'])->name('admin.users.update');
-Route::get('/admin/users', [AdminController::class, 'userAdminDestroy'])->name('admin.users.destroy');
+Route::post('/admin/users', [AdminController::class, 'userAdminStore'])->name('admin.users.store');
+Route::get('/admin/users/{id}/edit', [AdminController::class, 'userAdminEdit'])->name('admin.users.edit');
+Route::put('/admin/users/{id}', [AdminController::class, 'userAdminUpdate'])->name('admin.users.update');
+Route::delete('/admin/users/{id}', [AdminController::class, 'userAdminDestroy'])->name('admin.users.destroy');
 
     
 Route::get('/admin/diskon', [AdminController::class, 'diskonIndex'])->name('admin.diskon');
