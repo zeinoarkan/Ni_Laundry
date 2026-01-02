@@ -69,7 +69,6 @@
                                 </div>
                                 <div>
                                     <div class="text-sm font-bold text-slate-900">{{ \Carbon\Carbon::parse($p->tanggal_pesan)->format('d M Y') }}</div>
-                                    <div class="text-xs text-slate-400 font-medium">{{ \Carbon\Carbon::parse($p->tanggal_pesan)->format('H:i') }} WIB</div>
                                 </div>
                             </div>
                         </td>
