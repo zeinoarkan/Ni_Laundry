@@ -5,18 +5,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes (FIXED VERSION)
-|--------------------------------------------------------------------------
-*/
 
-// --- 1. PUBLIC ROUTES (Bisa diakses siapa saja) ---
 Route::get('/', [UserController::class, 'index'])->name('home');
-Route::get('/layanan', [UserController::class, 'layanan'])->name('layanan'); // SUDAH DIPINDAHKAN KESINI
+Route::get('/layanan', [UserController::class, 'layanan'])->name('layanan');
 
-// --- 2. AUTHENTICATION ---
-// Guest Only (Hanya bisa diakses jika BELUM login)
 Route::get('/login', [AuthController::class, 'formLoginUser'])->name('login');
 Route::post('/login', [AuthController::class, 'loginUser'])->middleware('throttle:5,1');
 Route::get('/register', function() { return view('auth.register'); })->name('register');
@@ -27,43 +19,41 @@ Route::post('/admin/login', [AuthController::class, 'loginAdmin']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/forgot-password', [AuthController::class, 'formForgotPassword']);
-
 Route::post('/forgot-password', [AuthController::class, 'sendOtp']);
-
 Route::get('/verify-otp', [AuthController::class, 'formVerifyOtp']);
-
 Route::post('/reset-password', [AuthController::class, 'processResetPassword']);
 
-// --- 3. AREA MEMBER (Wajib Login User) ---
 Route::middleware('auth:web')->group(function () {
-    // Route layanan sudah dipindah ke Public agar tamu bisa lihat harga
-    Route::get('/riwayat', [UserController::class, 'riwayat'])->name('riwayat');
-    
-    // Transaksi
-    Route::post('/pesan', [UserController::class, 'storePesanan'])->name('pesan.store');
-    Route::get('/pesanan/sukses/{id}', [UserController::class, 'paymentSuccess'])->name('pesan.sukses');
+Route::get('/riwayat', [UserController::class, 'riwayat'])->name('riwayat');
+Route::post('/pesan', [UserController::class, 'storePesanan'])->name('pesan.store');
+Route::get('/pesanan/sukses/{id}', [UserController::class, 'paymentSuccess'])->name('pesanan.sukses');
 });
-
-// --- 4. AREA ADMIN (Wajib Login Admin) ---
 Route::middleware('auth:admin')->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     
-    // CRUD Layanan
-    Route::resource('/admin/layanan', AdminController::class)->except(['show']); 
-    // Tip: 'resource' otomatis membuat route index, create, store, edit, update, destroy
-    // Tapi jika mau manual seperti kodemu sebelumnya, tidak masalah, asalkan konsisten.
+Route::get('/admin/layanan', [AdminController::class, 'layananIndex'])->name('admin.layanan.index'); // Halaman Index
+Route::get('/admin/layanan/create', [AdminController::class, 'layananCreate'])->name('admin.layanan.create'); // Form Tambah
+Route::post('/admin/layanan', [AdminController::class, 'layananStore'])->name('admin.layanan.store'); // Proses Simpan
+Route::get('/admin/layanan/{id}/edit', [AdminController::class, 'layananEdit'])->name('admin.layanan.edit'); // Form Edit
+Route::put('/admin/layanan/{id}', [AdminController::class, 'layananUpdate'])->name('admin.layanan.update'); // Proses Update
+Route::delete('/admin/layanan/{id}', [AdminController::class, 'layananDestroy'])->name('admin.layanan.destroy'); // Proses Hapus
 
     // Manajemen Pesanan
-    Route::get('/admin/pesanan', [AdminController::class, 'pesananIndex'])->name('admin.pesanan.index');
-    Route::get('/admin/pesanan/{id}/edit', [AdminController::class, 'pesananEdit'])->name('admin.pesanan.edit');
-    Route::put('/admin/pesanan/{id}', [AdminController::class, 'pesananUpdate'])->name('admin.pesanan.update');
-    Route::delete('/admin/pesanan/{id}', [AdminController::class, 'pesananDestroy'])->name('admin.pesanan.destroy');
-    Route::post('/admin/pesanan/{id}/update-status', [AdminController::class, 'updateStatus'])->name('admin.pesanan.status');
+Route::get('/admin/pesanan', [AdminController::class, 'pesananIndex'])->name('admin.pesanan.index');
+Route::get('/admin/pesanan/{id}/edit', [AdminController::class, 'pesananEdit'])->name('admin.pesanan.edit');
+Route::put('/admin/pesanan/{id}', [AdminController::class, 'pesananUpdate'])->name('admin.pesanan.update');
+Route::delete('/admin/pesanan/{id}', [AdminController::class, 'pesananDestroy'])->name('admin.pesanan.destroy');
+Route::post('/admin/pesanan/{id}/update-status', [AdminController::class, 'updateStatus'])->name('admin.pesanan.status');
 
-    // Manajemen User
-    Route::get('/admin/users', [AdminController::class, 'userAdminIndex'])->name('admin.users.index');
-    // ... sisa route admin user ...
+
+Route::get('/admin/users', [AdminController::class, 'userAdminIndex'])->name('admin.users.index');
+Route::get('/admin/users/create', [AdminController::class, 'userAdminCreate'])->name('admin.users.create');
+Route::get('/admin/users', [AdminController::class, 'userAdminStore'])->name('admin.users.store');
+Route::get('/admin/users', [AdminController::class, 'userAdminEdit'])->name('admin.users.edit');
+Route::get('/admin/users', [AdminController::class, 'userAdminUpdate'])->name('admin.users.update');
+Route::get('/admin/users', [AdminController::class, 'userAdminDestroy'])->name('admin.users.destroy');
+
     
-    Route::get('/admin/diskon', [AdminController::class, 'diskonIndex'])->name('admin.diskon');
-    Route::post('/admin/diskon/{id}/reset', [AdminController::class, 'resetBonus'])->name('admin.diskon.reset');
+Route::get('/admin/diskon', [AdminController::class, 'diskonIndex'])->name('admin.diskon');
+Route::post('/admin/diskon/{id}/reset', [AdminController::class, 'resetBonus'])->name('admin.diskon.reset');
 });

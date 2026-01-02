@@ -2,13 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 1. Fix untuk AlpineJS */
 [x-cloak] { 
     display: none !important; 
 }
 
-/* 2. Custom Background */
-/* Bagian ini HARUS ada di bawah @tailwind base */
 @layer base {
     body {
         background-color: #F8FAFC;

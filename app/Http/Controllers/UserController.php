@@ -6,6 +6,7 @@ use Midtrans\Config;
 use Midtrans\Snap;
 use Illuminate\Http\Request;
 use App\Models\Layanan;
+use App\Models\User;
 use App\Models\Pesanan;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -22,84 +23,86 @@ class UserController extends Controller
     }
 
     public function storePesanan(Request $request) {
-        $layanan = Layanan::find($request->id_layanan);
-        $user = Auth::user();
-        
-        $berat_asli = $request->berat ?? 1; 
-        $berat_tagihan = $berat_asli;       
-        $status_promo = false;              
+        $request->validate([
+            'id_layanan' => 'required',
+            'berat' => 'required|numeric|min:1',
+            'metode' => 'required',
+        ]);
 
-        // Logika Promo (> 8kg diskon 1kg)
-        if ($berat_asli > 8) {
-            $berat_tagihan = $berat_asli - 1;
-            $status_promo = true;
+        $layanan = Layanan::find($request->id_layanan);
+        
+        $user = User::find(Auth::id()); 
+
+        $berat_input = $request->berat;
+        $poin_lama   = $user->progres_kg ?? 0;
+        
+        $total_akumulasi = $poin_lama + $berat_input;
+
+        $jumlah_gratis = floor($total_akumulasi / 9);
+
+        $potongan_saat_ini = 0;
+        if($jumlah_gratis > 0) {
+            $potongan_saat_ini = min($jumlah_gratis, $berat_input);
         }
 
-        $total_bayar = $berat_tagihan * $layanan->harga;
+        $sisa_poin_baru = $total_akumulasi % 9;
+
+        $berat_tagihan = $berat_input - $potongan_saat_ini;
+        $total_bayar   = $berat_tagihan * $layanan->harga;
         
-        // Tentukan status awal
         $status_awal = ($total_bayar <= 0) ? 'Diproses' : 'Pending';
 
-        // 1. SIMPAN KE DATABASE DULU
         $pesanan = Pesanan::create([
             'id_pelanggan' => $user->id_pelanggan,
-            'id_layanan' => $request->id_layanan,
-            'berat' => $berat_asli,      
-            'total_harga' => $total_bayar, 
+            'id_layanan'   => $request->id_layanan,
+            'berat'        => $berat_input,      
+            'total_harga'  => $total_bayar, 
             'status_pesanan' => $status_awal,
-            'tanggal_pesan' => now(), // Gunakan helper now() lebih simpel
-            'metode' => $request->metode,
+            'tanggal_pesan'  => now(),
+            'metode'       => $request->metode,
             'jumlah_bayar' => 0
         ]);
 
-        // Jika Gratis (Rp 0), langsung redirect tanpa ke Midtrans
         if ($total_bayar <= 0) {
-            return redirect('/riwayat')->with('success', 'Pesanan GRATIS (Promo > 8Kg).');
+            $user->progres_kg = $sisa_poin_baru;
+            $user->save();
+            
+            return redirect()->route('riwayat')->with('success', "Pesanan GRATIS (Tukar Poin). Sisa progres kg Anda: {$sisa_poin_baru}");
         }
 
-        // 2. KONFIGURASI MIDTRANS
+        if (!config('midtrans.server_key')) return back()->with('error', 'Server Key Error');
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized = config('midtrans.is_sanitized');
         Config::$is3ds = config('midtrans.is_3ds');
 
-        // === [PERBAIKAN UTAMA ADA DI SINI] ===
-        // Kita buat Order ID Unik dengan format: ORD-{ID_PESANAN}-{KODE_ACAK}
-        // Contoh: ORD-15-654a3b12
-        $custom_order_id = 'ORD-' . $pesanan->id_pesanan . '-' . uniqid();
-
         $params = array(
             'transaction_details' => array(
-                'order_id' => $custom_order_id, // Gunakan ID unik ini
-                'gross_amount' => (int) $total_bayar, // Pastikan integer
+                'order_id' => 'ORD-' . $pesanan->id_pesanan . '-' . time(),
+                'gross_amount' => (int) $total_bayar,
             ),
             'customer_details' => array(
                 'first_name' => $user->nama,
                 'phone' => $user->no_hp,
             ),
-            'callbacks' => array(
-                'finish' => url('/riwayat'),
-            )
         );
 
         try {
-            // Request Snap Token ke Midtrans
             $snapToken = Snap::getSnapToken($params);
-            
-            // Simpan Token ke Database
             $pesanan->snap_token = $snapToken;
             $pesanan->save();
             
-            $pesan_sukses = $status_promo 
-                ? 'Selamat! Anda dapat potongan 1 Kg karena mencuci lebih dari 8 Kg.' 
-                : 'Pesanan berhasil dibuat. Silakan lakukan pembayaran.';
+            if ($potongan_saat_ini > 0) {
+                $pesan = "Anda punya simpanan {$poin_lama} Kg. Ditambah order ini, Anda dapat GRATIS {$potongan_saat_ini} Kg!";
+            } else {
+                $pesan = "Order dibuat. Bayar sekarang agar berat {$berat_input}kg ini ditambahkan ke poin progres Anda.";
+            }
 
-            return redirect('/riwayat')->with('success', $pesan_sukses);
+            return redirect()->route('riwayat')->with('success', $pesan);
 
         } catch (\Exception $e) {
-            // Jika gagal request ke Midtrans, hapus pesanan agar tidak nyampah di DB
             $pesanan->delete(); 
-            return back()->with('error', 'Gagal memproses: ' . $e->getMessage());
+            return back()->with('error', $e->getMessage());
         }
     }
 
@@ -114,12 +117,20 @@ class UserController extends Controller
     public function paymentSuccess($id) {
         $pesanan = Pesanan::find($id);
         
-        if($pesanan) {
+        if($pesanan && $pesanan->status_pesanan != 'Diproses') {
             $pesanan->status_pesanan = 'Diproses'; 
             $pesanan->jumlah_bayar = $pesanan->total_harga; 
             $pesanan->save();
-        }
 
-        return redirect('/riwayat')->with('success', 'Pembayaran Berhasil! Pesanan sedang diproses.');
+            $user = User::find($pesanan->id_pelanggan);
+            if($user) {
+                $poin_lama = $user->progres_kg ?? 0;
+                $total_baru = $poin_lama + $pesanan->berat;
+                $user->progres_kg = $total_baru % 9;
+                $user->save();
+            }
+        }
+        return redirect()->route('riwayat')->with('success', 'Pembayaran Berhasil! Poin laundry Anda diperbarui.');
     }
-}
+    }
+    

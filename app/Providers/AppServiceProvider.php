@@ -20,12 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // 2. TAMBAHKAN KODE INI DI BARIS PERTAMA FUNGSI BOOT
-        // Ini memaksa semua CSS/JS/Gambar dipanggil via HTTPS saat di Vercel
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
-
-        // --- Logika kodingan kamu yang lain (jika ada) biarkan di bawah sini ---
     }
 }

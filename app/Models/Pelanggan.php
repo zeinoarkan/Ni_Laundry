@@ -12,7 +12,6 @@ class Pelanggan extends Authenticatable
     protected $table = 'pelanggan';
     protected $primaryKey = 'id_pelanggan';
     
-    // MATIKAN TIMESTAMPS DISINI
     public $timestamps = false; 
 
     protected $fillable = ['nama', 'password', 'no_hp', 'alamat', 'progres_kg', 'bonus'];

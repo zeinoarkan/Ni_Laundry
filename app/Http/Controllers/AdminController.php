@@ -77,7 +77,6 @@ class AdminController extends Controller
         return back()->with('success', 'Status Selesai. Poin dihitung berdasarkan nominal bayar.');
     }
 
-    // CRUD LAYANAN
     
     public function layananIndex() {
         $layanan = Layanan::all();
@@ -118,7 +117,6 @@ class AdminController extends Controller
         return redirect('/admin/layanan')->with('success', 'Layanan dihapus');
     }
 
-    // MANAJEMEN PESANAN
 
     public function pesananIndex(Request $request) {
         $query = Pesanan::with(['pelanggan', 'layanan']);
@@ -179,46 +177,32 @@ class AdminController extends Controller
     }
 
     public function pesananDestroy($id) {
-    $pesanan = Pesanan::with(['layanan', 'pelanggan'])->findOrFail($id);
-
-    if ($pesanan->status_pesanan == 'Selesai') {
+        $pesanan = Pesanan::findOrFail($id);
         
-        $pelanggan = $pesanan->pelanggan;
+        $id_pelanggan = $pesanan->id_pelanggan;
+
+        $pesanan->delete();
+
         
-        if ($pelanggan && $pesanan->layanan) {
-            
-            $harga_layanan = $pesanan->layanan->harga;
-            
-            $berat_poin_dihapus = ($harga_layanan > 0) 
-                ? floor($pesanan->total_harga / $harga_layanan) 
-                : 0;
+        $pelanggan = Pelanggan::find($id_pelanggan);
+        
+        if ($pelanggan) {
+            $total_berat_tersisa = Pesanan::where('id_pelanggan', $id_pelanggan)
+                ->whereIn('status_pesanan', ['Diproses', 'Selesai'])
+                ->sum('berat');
 
-            $pelanggan->progres_kg -= $berat_poin_dihapus;
-
-            while ($pelanggan->progres_kg < 0) {
-                if ($pelanggan->bonus > 0) {
-                    $pelanggan->decrement('bonus'); 
-                    $pelanggan->progres_kg += 8;    
-                } else {
-                    $pelanggan->progres_kg = 0;     
-                    break; 
-                }
-            }
+            $pelanggan->progres_kg = $total_berat_tersisa % 9;
+            
             
             $pelanggan->save();
         }
+
+        if (Pesanan::count() == 0) {
+            DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = 1');
+        }    
+        
+        return back()->with('success', 'Pesanan dihapus dan Poin pelanggan telah dihitung ulang.');
     }
-
-    $pesanan->delete();
-
-    if (Pesanan::count() == 0) {
-        DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = 1');
-    }    
-    
-    return back()->with('success', 'Pesanan berhasil dihapus.');
-}
-
-    // CRUD ADMIN (PENGGUNA)
 
     public function userAdminIndex() {
         $admins = Admin::all();

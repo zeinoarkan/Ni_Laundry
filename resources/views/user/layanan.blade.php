@@ -50,7 +50,6 @@
         
         <div class="bg-white/95 md:bg-white/80 md:backdrop-blur-lg rounded-[2.5rem] shadow-lg border border-white/50 p-8">
             
-            {{-- LOGIC: Jika User Login, Tampilkan Form --}}
             @auth
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold shadow-md">
@@ -62,7 +61,6 @@
                     </div>
                 </div>
 
-                {{-- Update Action ke Route Name --}}
                 <form action="{{ route('pesan.store') }}" method="POST" class="space-y-5">
                     @csrf
                     
@@ -118,7 +116,6 @@
                     </button>
                 </form>
 
-            {{-- LOGIC: Jika Tamu (Guest), Tampilkan Card Login --}}
             @else
                 <div class="text-center py-8 space-y-6">
                     <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">

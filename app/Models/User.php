@@ -9,8 +9,13 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+
+    protected $table = 'pelanggan'; 
+
+    protected $primaryKey = 'id_pelanggan';
+    
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -18,9 +23,11 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'nama',       
+        'email',      
         'password',
+        'no_hp',      
+        'progres_kg', 
     ];
 
     /**

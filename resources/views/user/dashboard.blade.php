@@ -4,10 +4,8 @@
 @section('content')
 <div class="space-y-12 md:space-y-24 my-6 md:my-8 w-full overflow-hidden">
 
-    {{-- SECTION 1: HERO & PROGRESS --}}
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-8 items-stretch">
         
-        {{-- Hero Card --}}
         <div class="lg:col-span-3 relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-brand-600 shadow-glow group min-h-[400px] md:min-h-[450px]" 
              data-aos="fade-right">
              
@@ -37,11 +35,9 @@
             </div>
         </div>
 
-        {{-- Progress Card --}}
         <div class="lg:col-span-2 bg-white/70 backdrop-blur-xl border border-white/60 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-glass flex flex-col justify-between relative overflow-hidden min-h-[300px]"
              data-aos="fade-left" data-aos-delay="200">
             
-            {{-- Blob Decoration (Pastikan di dalam overflow-hidden) --}}
             <div class="absolute -top-20 -right-20 w-40 md:w-60 h-40 md:h-60 bg-fresh-400/20 rounded-full blur-3xl pointer-events-none"></div>
             
             <div>
@@ -79,7 +75,6 @@
         </div>
     </div>
 
-    {{-- SECTION 2: FEATURES --}}
     <div data-aos="fade-up" data-aos-offset="50">
         <div class="text-center mb-8 md:mb-12 px-2">
              <span class="text-brand-600 font-bold text-xl md:text-3xl uppercase tracking-wider block mb-2">Kenapa Memilih Kami?</span>
@@ -116,7 +111,6 @@
         </div>
     </div>
 
-    {{-- SECTION 3: ABOUT --}}
     <div id="about" class="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-12 lg:gap-20 items-center scroll-mt-32">
         
         <div class="relative group" data-aos="fade-right">
@@ -128,7 +122,6 @@
                class="w-full h-[300px] md:h-[500px] object-cover hover:scale-105 transition-transform duration-1000">
             </div>
 
-            {{-- Blobs: Posisi diatur agar tidak keluar layar mobile secara ekstrem --}}
             <div class="absolute -top-6 md:-top-10 -left-6 md:-left-10 w-24 md:w-40 h-24 md:h-40 bg-brand-50 rounded-full blur-3xl z-0"></div>
             <div class="absolute -bottom-6 md:-bottom-10 -right-6 md:-right-10 w-24 md:w-40 h-24 md:h-40 bg-fresh-50 rounded-full blur-3xl z-0"></div>
 
@@ -156,7 +149,6 @@
         </div>
     </div>
 
-    {{-- SECTION 4: CTA --}}
     <div class="rounded-[2rem] md:rounded-[3rem] bg-slate-900 overflow-hidden relative p-8 md:p-20 text-center group shadow-2xl mx-1"
          data-aos="zoom-in-up" data-aos-offset="50">
          
