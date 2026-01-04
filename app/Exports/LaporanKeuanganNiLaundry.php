@@ -48,7 +48,6 @@ class LaporanKeuanganNiLaundry implements FromCollection, WithHeadings, WithMapp
             'Berat',
             'Total Tagihan',
             'Sudah Dibayar',
-            'Sisa Tagihan',
             'Status Laundry',
             'Status Bayar',
         ];
@@ -66,11 +65,6 @@ class LaporanKeuanganNiLaundry implements FromCollection, WithHeadings, WithMapp
         if (substr($no_hp, 0, 1) === '0') {
             $no_hp = '62' . substr($no_hp, 1);
         }
-        // ----------------------------------
-
-        // Hitung Sisa
-        $sisa = $pesanan->total_harga - $pesanan->jumlah_bayar;
-        if($sisa < 0) $sisa = 0;
 
         // Status Bayar
         $statusBayar = 'BELUM LUNAS';
@@ -91,8 +85,7 @@ class LaporanKeuanganNiLaundry implements FromCollection, WithHeadings, WithMapp
             $pesanan->berat . ' ' . ($pesanan->layanan->jenis == 'Kiloan' ? 'Kg' : 'Pcs'),
             
             $pesanan->total_harga,  
-            $pesanan->jumlah_bayar, 
-            $sisa,                  
+            $pesanan->jumlah_bayar,                
 
             $pesanan->status_pesanan,
             $statusBayar,
