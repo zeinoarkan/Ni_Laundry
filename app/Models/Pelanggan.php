@@ -16,7 +16,8 @@ class Pelanggan extends Authenticatable
     public $timestamps = false; 
 
     protected $fillable = ['nama', 'password', 'no_hp', 'alamat', 'progres_kg', 'bonus'];
-    protected $hidden = ['password'];
+    protected $hidden = ['password', 'remember_token'];
+    
     
     public function pesanan() {
         return $this->hasMany(Pesanan::class, 'id_pelanggan');

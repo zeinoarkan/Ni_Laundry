@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Pelanggan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -24,16 +27,43 @@ class AuthController extends Controller
     public function formLoginUser() { return view('auth.login-user'); }
     
     public function loginUser(Request $request) {
-        $user = Pelanggan::where('nama', $request->nama)->first();
+        // 1. RATE LIMITING
+        $throttleKey = 'login-user:' . $request->ip();
+        
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            return back()->with('error', "Terlalu banyak percobaan. Tunggu $seconds detik lagi.");
+        }
+
+        // 2. CARI USER (Nama atau No HP)
+        $credential = $request->input('nama');
+        
+        $user = Pelanggan::where('nama', $credential)
+                ->orWhere('no_hp', $credential)
+                ->first();
+
+        // 3. CEK PASSWORD & LOGIN
         if ($user && Hash::check($request->password, $user->password)) {
-            Auth::guard('web')->login($user);
             
-            // PERBAIKAN DISINI: 
-            // Dulu: return redirect('/dashboard'); 
-            // Sekarang: return redirect('/'); (Ke halaman utama)
+            // --- BAGIAN PENTING REMEMBER ME ---
+            // Mengambil nilai checkbox (true jika dicentang, false jika tidak)
+            $remember = $request->boolean('remember'); 
+            
+            // Login manual dengan parameter remember
+            // Param 1: Object User
+            // Param 2: Boolean (Ingat Saya?)
+            Auth::guard('web')->login($user, $remember);
+            
+            // ----------------------------------
+            
+            RateLimiter::clear($throttleKey);
+            $request->session()->regenerate();
+
             return redirect('/'); 
         }
-        return back()->with('error', 'Username atau Password salah');
+
+        RateLimiter::hit($throttleKey, 60);
+        return back()->with('error', 'Akun tidak ditemukan atau Password salah');
     }
 
     public function registerUser(Request $request) {
@@ -169,5 +199,49 @@ class AuthController extends Controller
         curl_close($curl);
         
         return $response;
+    }
+
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    // 2. Handle balikan dari Google
+    public function handleGoogleCallback()
+    {
+        try {
+            // Ambil data user dari Google
+            $googleUser = Socialite::driver('google')->user();
+            
+            // Cek apakah user ini sudah ada di database (berdasarkan google_id atau email)
+            $user = Pelanggan::where('google_id', $googleUser->getId())
+                            ->orWhere('email', $googleUser->getEmail())
+                            ->first();
+
+            if(!$user) {
+                // Kalo belum ada, Buat User Baru Otomatis
+                $user = Pelanggan::create([
+                    'nama' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'google_id' => $googleUser->getId(),
+                    'password' => Hash::make(Str::random(24)), // Password acak biar aman
+                    // 'no_hp' => ... (Google jarang kasih no hp, nanti minta user update profile)
+                ]);
+            } else {
+                // Kalo sudah ada tapi belum punya google_id, kita update
+                if (!$user->google_id) {
+                    $user->update(['google_id' => $googleUser->getId()]);
+                }
+            }
+
+            // Login-kan user
+            Auth::guard('web')->login($user, true); // true = Remember Me
+            
+            return redirect()->intended('/');
+
+        } catch (\Exception $e) {
+            // Jika user cancel atau error
+            return redirect('/login')->with('error', 'Login Google Gagal, silakan coba lagi.');
+        }
     }
 }

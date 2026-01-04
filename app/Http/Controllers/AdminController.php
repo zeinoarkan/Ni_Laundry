@@ -367,6 +367,76 @@ public function bayarTunai($id) {
         return redirect('/admin/pesanan')->with('success', 'Pesanan diperbarui. Notifikasi tagihan (jika ada) telah dikirim ke pelanggan.');
     }
 
+    public function processRefund($id) {
+        // 1. Ambil Data
+        $pesanan = Pesanan::with(['pelanggan', 'layanan'])->findOrFail($id);
+
+        // 2. Validasi: Hanya bisa refund jika sudah ada pembayaran
+        if ($pesanan->jumlah_bayar <= 0) {
+            return back()->with('error', 'Pesanan ini belum dibayar, tidak ada dana yang bisa di-refund.');
+        }
+
+        // Simpan jumlah yang di-refund untuk pesan WA
+        $nominalRefund = $pesanan->jumlah_bayar;
+
+        // 3. LOGIKA TARIK KEMBALI POIN (Anti-Cheat)
+        // Jika status sebelumnya 'Selesai', poin yang didapat harus ditarik lagi.
+        if ($pesanan->status_pesanan == 'Selesai') {
+            $pelanggan = $pesanan->pelanggan;
+            
+            if ($pelanggan && $pesanan->layanan) {
+                $harga_layanan = $pesanan->layanan->harga;
+                
+                // Hitung berapa poin yang dulu didapat dari pesanan ini
+                $berat_poin_dihapus = ($harga_layanan > 0) 
+                    ? floor($pesanan->total_harga / $harga_layanan) 
+                    : 0;
+
+                $pelanggan->progres_kg -= $berat_poin_dihapus;
+
+                // Logika mundur jika poin minus (ambil dari bonus/set 0)
+                while ($pelanggan->progres_kg < 0) {
+                    if ($pelanggan->bonus > 0) {
+                        $pelanggan->decrement('bonus'); 
+                        $pelanggan->progres_kg += 8;    
+                    } else {
+                        $pelanggan->progres_kg = 0;     
+                        break; 
+                    }
+                }
+                
+                $pelanggan->save();
+            }
+        }
+
+        // 4. Update Data Pesanan
+        $pesanan->jumlah_bayar = 0; // Uang dianggap keluar dari kasir
+        $pesanan->status_pesanan = 'Dikembalikan'; // Status khusus Refund
+        $pesanan->save();
+
+        // 5. Kirim WA Notifikasi Refund
+        try {
+            $pelanggan = $pesanan->pelanggan;
+            $pesanWA = "Halo Kak *{$pelanggan->nama}*,\n\n";
+            $pesanWA .= "Pengembalian Dana (Refund) untuk pesanan *#{$pesanan->id_pesanan}* telah diproses.\n";
+            $pesanWA .= "Nominal Refund: *Rp " . number_format($nominalRefund, 0, ',', '.') . "*\n";
+            $pesanWA .= "Status Pesanan: *DIKEMBALIKAN / BATAL*\n\n";
+            
+            if($nominalRefund > 0) {
+                $pesanWA .= "Dana telah kami kembalikan (Tunai/Transfer). Silakan cek mutasi atau konfirmasi ke admin.\n";
+            }
+            
+            $pesanWA .= "Mohon maaf atas ketidaknyamanannya. 🙏";
+
+            $this->sendWhatsapp($pelanggan->no_hp, $pesanWA);
+
+        } catch (\Exception $e) {
+            \Log::error("Gagal kirim WA Refund: " . $e->getMessage());
+        }
+
+        return back()->with('success', 'Refund berhasil diproses. Status diubah menjadi Dikembalikan & Poin ditarik (jika ada).');
+    }
+
     public function pesananDestroy($id) {
     $pesanan = Pesanan::with(['layanan', 'pelanggan'])->findOrFail($id);
 

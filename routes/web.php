@@ -23,6 +23,9 @@ Route::post('/forgot-password', [AuthController::class, 'sendOtp']);
 Route::get('/verify-otp', [AuthController::class, 'formVerifyOtp']);
 Route::post('/reset-password', [AuthController::class, 'processResetPassword']);
 
+Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
 Route::middleware('auth:web')->group(function () {
 Route::get('/riwayat', [UserController::class, 'riwayat'])->name('riwayat');
 Route::post('/pesan', [UserController::class, 'storePesanan'])->name('pesan.store');
@@ -48,6 +51,7 @@ Route::put('/admin/pesanan/{id}', [AdminController::class, 'pesananUpdate'])->na
 Route::delete('/admin/pesanan/{id}', [AdminController::class, 'pesananDestroy'])->name('admin.pesanan.destroy');
 Route::post('/admin/pesanan/{id}/update-status', [AdminController::class, 'updateStatus'])->name('admin.pesanan.status');
 Route::post('/admin/pesanan/{id}/bayar-tunai', [AdminController::class, 'bayarTunai']);
+Route::post('/admin/pesanan/{id}/refund', [AdminController::class, 'processRefund'])->name('admin.pesanan.refund');
 
 
 Route::get('/admin/users', [AdminController::class, 'userAdminIndex'])->name('admin.users.index');
