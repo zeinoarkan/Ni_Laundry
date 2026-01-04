@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Models\Layanan;
 use App\Models\Pesanan;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -21,105 +20,125 @@ class UserController extends Controller
         return view('user.layanan', compact('layanan'));
     }
 
+    // --- INPUT PESANAN ---
     public function storePesanan(Request $request) {
-        $layanan = Layanan::find($request->id_layanan);
         $user = Auth::user();
         
-        $berat_asli = $request->berat ?? 1; 
-        $berat_tagihan = $berat_asli;       
-        $status_promo = false;              
-
-        // Logika Promo (> 8kg diskon 1kg)
-        if ($berat_asli > 8) {
-            $berat_tagihan = $berat_asli - 1;
-            $status_promo = true;
-        }
-
-        $total_bayar = $berat_tagihan * $layanan->harga;
-        
-        // Tentukan status awal
-        $status_awal = ($total_bayar <= 0) ? 'Diproses' : 'Pending';
-
-        // 1. SIMPAN KE DATABASE DULU
-        $pesanan = Pesanan::create([
+        Pesanan::create([
             'id_pelanggan' => $user->id_pelanggan,
             'id_layanan' => $request->id_layanan,
-            'berat' => $berat_asli,      
-            'total_harga' => $total_bayar, 
-            'status_pesanan' => $status_awal,
-            'tanggal_pesan' => now(), // Gunakan helper now() lebih simpel
+            'berat' => 0,      
+            'total_harga' => 0, 
+            'status_pesanan' => 'Pending', // Status awal
+            'tanggal_pesan' => now(), 
             'metode' => $request->metode,
             'jumlah_bayar' => 0
         ]);
 
-        // Jika Gratis (Rp 0), langsung redirect tanpa ke Midtrans
-        if ($total_bayar <= 0) {
-            return redirect('/riwayat')->with('success', 'Pesanan GRATIS (Promo > 8Kg).');
+        return redirect('/riwayat')->with('success', 'Pesanan berhasil dibuat. Mohon tunggu konfirmasi admin/penjemputan.');
+    }
+
+    public function riwayat() {
+        $pesanan = Pesanan::with('layanan')
+            ->where('id_pelanggan', Auth::id())
+            ->orderBy('id_pesanan', 'desc')
+            ->get();
+        return view('user.riwayat', compact('pesanan'));
+    }
+
+    // --- FITUR BARU: BATALKAN PESANAN ---
+    public function cancelPesanan($id) {
+        $pesanan = Pesanan::where('id_pelanggan', Auth::id())->findOrFail($id);
+
+        // LOGIKA BATASAN CANCEL:
+        // Hanya boleh cancel jika status masih 'Pending'.
+        // Jika sudah 'Menunggu Pembayaran' (artinya sudah ditimbang) atau 'Diproses', tidak bisa cancel.
+        if ($pesanan->status_pesanan !== 'Pending') {
+            return back()->with('error', 'Pesanan tidak bisa dibatalkan karena sudah diproses/ditimbang oleh petugas.');
         }
 
-        // 2. KONFIGURASI MIDTRANS
+        $pesanan->delete();
+
+        return back()->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
+    // --- GENERATE PEMBAYARAN (LOGIKA DIPERBARUI) ---
+    public function bayar($id) {
+        $pesanan = Pesanan::with(['pelanggan', 'layanan'])->findOrFail($id);
+
+        // 1. Cek apakah Admin sudah input harga (sudah ditimbang)
+        if ($pesanan->total_harga <= 0) {
+             return response()->json(['error' => 'Pesanan sedang dihitung/ditimbang. Mohon tunggu admin.'], 400);
+        }
+
+        // 2. Cek apakah sudah lunas
+        if ($pesanan->jumlah_bayar >= $pesanan->total_harga && $pesanan->total_harga > 0) {
+            return response()->json(['error' => 'Pesanan ini sudah lunas.'], 400);
+        }
+
+        // 3. LOGIKA FLEKSIBEL:
+        // Boleh bayar jika status: 'Menunggu Pembayaran', 'Diproses', atau 'Selesai' (selama belum lunas)
+        // Kita reject hanya jika statusnya 'Pending' (karena harga belum ada) atau 'Dibatalkan'
+        if ($pesanan->status_pesanan == 'Pending' || $pesanan->status_pesanan == 'Dibatalkan') {
+             return response()->json(['error' => 'Status pesanan belum siap untuk pembayaran.'], 400);
+        }
+
+        // KONFIGURASI MIDTRANS
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized = config('midtrans.is_sanitized');
         Config::$is3ds = config('midtrans.is_3ds');
 
-        // === [PERBAIKAN UTAMA ADA DI SINI] ===
-        // Kita buat Order ID Unik dengan format: ORD-{ID_PESANAN}-{KODE_ACAK}
-        // Contoh: ORD-15-654a3b12
-        $custom_order_id = 'ORD-' . $pesanan->id_pesanan . '-' . uniqid();
+        // Buat Order ID unik setiap klik bayar untuk menghindari "Order ID has been paid" dari Midtrans jika user gagal bayar sebelumnya
+        // Format: ORD-IDPESANAN-TIMESTAMP
+        $custom_order_id = 'ORD-' . $pesanan->id_pesanan . '-' . time();
 
         $params = array(
             'transaction_details' => array(
-                'order_id' => $custom_order_id, // Gunakan ID unik ini
-                'gross_amount' => (int) $total_bayar, // Pastikan integer
+                'order_id' => $custom_order_id,
+                'gross_amount' => (int) $pesanan->total_harga,
             ),
             'customer_details' => array(
-                'first_name' => $user->nama,
-                'phone' => $user->no_hp,
+                'first_name' => $pesanan->pelanggan->nama,
+                'phone' => $pesanan->pelanggan->no_hp,
             ),
-            'callbacks' => array(
-                'finish' => url('/riwayat'),
-            )
         );
 
         try {
-            // Request Snap Token ke Midtrans
             $snapToken = Snap::getSnapToken($params);
             
-            // Simpan Token ke Database
+            // Simpan token (opsional, untuk log)
             $pesanan->snap_token = $snapToken;
             $pesanan->save();
             
-            $pesan_sukses = $status_promo 
-                ? 'Selamat! Anda dapat potongan 1 Kg karena mencuci lebih dari 8 Kg.' 
-                : 'Pesanan berhasil dibuat. Silakan lakukan pembayaran.';
-
-            return redirect('/riwayat')->with('success', $pesan_sukses);
+            return response()->json([
+                'snapToken' => $snapToken,
+                'order_id'  => $pesanan->id_pesanan
+            ]);
 
         } catch (\Exception $e) {
-            // Jika gagal request ke Midtrans, hapus pesanan agar tidak nyampah di DB
-            $pesanan->delete(); 
-            return back()->with('error', 'Gagal memproses: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function riwayat() {
-        $pesanan = $pesanan = Pesanan::with('layanan')
-           ->where('id_pelanggan', Auth::id())
-           ->orderBy('id_pesanan', 'desc')
-           ->get();
-        return view('user.riwayat', compact('pesanan'));
-    }
-
+    // --- CALLBACK SUKSES (LOGIKA DIPERBARUI) ---
     public function paymentSuccess($id) {
         $pesanan = Pesanan::find($id);
         
         if($pesanan) {
-            $pesanan->status_pesanan = 'Diproses'; 
+            // Tandai sudah bayar
             $pesanan->jumlah_bayar = $pesanan->total_harga; 
+
+            // LOGIKA STATUS SETELAH BAYAR:
+            // 1. Jika statusnya 'Menunggu Pembayaran', ubah jadi 'Diproses'.
+            // 2. Jika statusnya sudah 'Diproses' atau 'Selesai', JANGAN diubah (biarkan tetap berjalan).
+            if ($pesanan->status_pesanan == 'Menunggu Pembayaran') {
+                $pesanan->status_pesanan = 'Diproses';
+            }
+            
             $pesanan->save();
         }
 
-        return redirect('/riwayat')->with('success', 'Pembayaran Berhasil! Pesanan sedang diproses.');
+        return redirect('/riwayat')->with('success', 'Pembayaran Berhasil! Terima kasih.');
     }
 }

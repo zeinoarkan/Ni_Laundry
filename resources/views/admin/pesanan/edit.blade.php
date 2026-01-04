@@ -95,7 +95,8 @@
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Status Pengerjaan</label>
                         <div class="relative">
                             <select name="status_pesanan" class="w-full appearance-none bg-slate-50 border-2 border-slate-100 text-slate-900 text-sm rounded-2xl focus:bg-white focus:border-brand-500 block p-4 outline-none transition-all font-bold cursor-pointer hover:border-brand-200">
-                                <option value="Pending" {{ $pesanan->status_pesanan == 'Pending' ? 'selected' : '' }}>⏳ Pending (Menunggu)</option>
+                                <option value="Pending" {{ $pesanan->status_pesanan == 'Pending' ? 'selected' : '' }}>⏳ Pending (Menunggu Konfirmasi)</option>
+                                <option value="Menunggu Pembayaran" {{ $pesanan->status_pesanan == 'Menunggu Pembayaran' ? 'selected' : '' }}>💳 Menunggu Pembayaran (Tagihan Dikirim)</option>
                                 <option value="Diproses" {{ $pesanan->status_pesanan == 'Diproses' ? 'selected' : '' }}>🫧 Diproses (Sedang Dicuci)</option>
                                 <option value="Selesai" {{ $pesanan->status_pesanan == 'Selesai' ? 'selected' : '' }}>✅ Selesai (Siap Diambil)</option>
                             </select>
@@ -111,24 +112,24 @@
                             <div class="relative group">
                                 <input type="number" step="0.01" name="berat" id="inputBerat" value="{{ $pesanan->berat }}"
                                        class="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 text-lg rounded-2xl focus:bg-white focus:border-brand-500 block p-4 pl-12 outline-none transition-all font-bold group-hover:border-slate-200"
-                                       oninput="hitungTotal()">
+                                       oninput="hitungTotal()" onkeyup="hitungTotal()">
                                 <div class="absolute inset-y-0 left-0 flex items-center px-4 text-slate-400 group-focus-within:text-brand-500 transition-colors">
                                     <i class="ph-bold ph-scales text-xl"></i>
                                 </div>
                             </div>
-                            <p class="text-[10px] text-slate-400 ml-1">*Ubah berat sesuai timbangan asli.</p>
+                            <p class="text-[10px] text-slate-400 ml-1">*Masukkan berat hasil timbangan.</p>
                         </div>
 
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Total Tagihan (Rp)</label>
                             <div class="relative group">
                                 <input type="number" name="total_harga" id="inputTotal" value="{{ $pesanan->total_harga }}"
-                                       class="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 text-lg rounded-2xl focus:bg-white focus:border-brand-500 block p-4 pl-12 outline-none transition-all font-bold group-hover:border-slate-200">
-                                <div class="absolute inset-y-0 left-0 flex items-center px-4 text-slate-400 group-focus-within:text-brand-500 transition-colors">
+                                       class="w-full bg-slate-100 border-2 border-slate-100 text-slate-900 text-lg rounded-2xl focus:bg-white focus:border-brand-500 block p-4 pl-12 outline-none transition-all font-bold group-hover:border-slate-200"
+                                       readonly> <div class="absolute inset-y-0 left-0 flex items-center px-4 text-slate-400 group-focus-within:text-brand-500 transition-colors">
                                     <span class="text-lg font-bold">Rp</span>
                                 </div>
                             </div>
-                            <p class="text-[10px] text-slate-400 ml-1">*Otomatis hitung, tapi bisa diedit manual.</p>
+                            <p class="text-[10px] text-slate-400 ml-1">*Terhitung otomatis (Berat x Harga).</p>
                         </div>
                     </div>
 
@@ -162,26 +163,24 @@
 
 <script>
     const hargaPerKg = {{ $pesanan->layanan->harga }};
-    const beratAwal = {{ $pesanan->berat }};
-    const totalAwal = {{ $pesanan->total_harga }};
-    
-    const isKiloan = "{{ $pesanan->layanan->jenis }}" == 'Kiloan';
 
     function hitungTotal() {
-        if (!isKiloan) return; 
-
         const beratInput = document.getElementById('inputBerat').value;
         const totalInput = document.getElementById('inputTotal');
         
-        let beratBayar = beratInput;
+        // Pastikan input tidak kosong
+        let berat = parseFloat(beratInput) || 0;
         
-        if(beratInput > 8) {
-            beratBayar = beratInput - 1;
+        // Logika Bonus (Jika > 8kg, hitung bayar -1kg)
+        // Jika Anda ingin murni perkalian biasa, hapus blok if ini
+        if(berat > 8) {
+            berat = berat - 1;
         }
 
-        let totalBaru = beratBayar * hargaPerKg;
+        let totalBaru = berat * hargaPerKg;
         
-        totalInput.value = totalBaru;
+        // Bulatkan ke integer
+        totalInput.value = Math.round(totalBaru);
     }
 </script>
 @endsection
