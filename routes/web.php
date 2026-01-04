@@ -32,6 +32,7 @@ Route::delete('/pesanan/cancel/{id}', [UserController::class, 'cancelPesanan']);
 });
 Route::middleware('auth:admin')->group(function () {
 Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+Route::get('/laporan/export', [AdminController::class, 'exportExcel'])->name('admin.laporan.export');
     
 Route::get('/admin/layanan', [AdminController::class, 'layananIndex'])->name('admin.layanan.index'); 
 Route::get('/admin/layanan/create', [AdminController::class, 'layananCreate'])->name('admin.layanan.create'); 

@@ -74,34 +74,68 @@
     {{-- ROW 2: GRAFIK & OPERASIONAL --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         
-        <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 lg:col-span-2" data-aos="fade-up" data-aos-delay="400">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 lg:col-span-2 relative overflow-hidden" data-aos="fade-up" data-aos-delay="400">
+    
+            {{-- Header Grafik --}}
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 gap-6">
+                
+                {{-- Judul --}}
                 <div>
-                    {{-- Judul Dinamis dari Controller --}}
-                    <h3 class="font-bold text-slate-800 text-lg">{{ $chart_title }}</h3>
-                    <p class="text-sm text-slate-400">Statistik performa pendapatan laundry.</p>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-1.5 h-6 rounded-full bg-brand-500"></span>
+                        <h3 class="font-bold text-slate-800 text-xl tracking-tight">{{ $chart_title }}</h3>
+                    </div>
+                    <p class="text-sm text-slate-400 font-medium pl-3.5">Analisis performa pendapatan secara visual.</p>
                 </div>
                 
-                {{-- TOMBOL FILTER --}}
-                <div class="flex bg-slate-100 p-1 rounded-xl">
-                    <a href="?filter=mingguan" 
-                       class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ $current_filter == 'mingguan' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
-                       Mingguan
+                {{-- Controls (Filter & Export) --}}
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
+                    
+                    {{-- 1. TOMBOL EXCEL (Minimalis Aesthetic) --}}
+                    <a href="{{ route('admin.laporan.export', ['filter' => $current_filter]) }}" 
+                    class="group relative flex items-center gap-2.5 px-5 py-2.5 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 transition-all duration-300 hover:border-emerald-400 hover:text-emerald-600 hover:shadow-[0_4px_20px_-4px_rgba(16,185,129,0.3)] w-full sm:w-auto justify-center">
+                        
+                        {{-- Indikator Dot Hijau --}}
+                        <span class="absolute left-4 w-1.5 h-1.5 rounded-full bg-emerald-400 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300"></span>
+                        
+                        <span class="group-hover:translate-x-2 transition-transform duration-300 flex items-center gap-2">
+                            <i class="ph-bold ph-file-xls text-lg"></i>
+                            <span>Export</span>
+                        </span>
                     </a>
-                    <a href="?filter=bulanan" 
-                       class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ $current_filter == 'bulanan' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
-                       Bulanan
-                    </a>
-                    <a href="?filter=tahunan" 
-                       class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ $current_filter == 'tahunan' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
-                       Tahunan
-                    </a>
+
+                    {{-- 2. SEGMENTED CONTROL (Filter Mingguan/Bulanan/Tahunan) --}}
+                    <div class="flex p-1.5 bg-slate-50/80 backdrop-blur-sm rounded-full border border-slate-100 w-full sm:w-auto">
+                        
+                        {{-- Item: Mingguan --}}
+                        <a href="?filter=mingguan" 
+                        class="relative flex-1 sm:flex-none px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-center transition-all duration-300 {{ $current_filter == 'mingguan' ? 'bg-white text-brand-600 shadow-sm shadow-slate-200/50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100/50' }}">
+                        Minggu
+                        </a>
+
+                        {{-- Item: Bulanan --}}
+                        <a href="?filter=bulanan" 
+                        class="relative flex-1 sm:flex-none px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-center transition-all duration-300 {{ $current_filter == 'bulanan' ? 'bg-white text-brand-600 shadow-sm shadow-slate-200/50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100/50' }}">
+                        Bulan
+                        </a>
+
+                        {{-- Item: Tahunan --}}
+                        <a href="?filter=tahunan" 
+                        class="relative flex-1 sm:flex-none px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-center transition-all duration-300 {{ $current_filter == 'tahunan' ? 'bg-white text-brand-600 shadow-sm shadow-slate-200/50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100/50' }}">
+                        Tahun
+                        </a>
+
+                    </div>
                 </div>
             </div>
             
-            <div class="h-72 w-full">
+            {{-- Canvas Grafik --}}
+            <div class="h-80 w-full relative z-10">
                 <canvas id="incomeChart"></canvas>
             </div>
+
+            {{-- Dekorasi Background Abstrak (Opsional, agar tidak terlalu polos) --}}
+            <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/50 to-transparent pointer-events-none"></div>
         </div>
 
         <div class="bg-white p-8 rounded-3xl shadow-glow text-slate-600 flex flex-col justify-between relative overflow-hidden" data-aos="fade-up" data-aos-delay="500">

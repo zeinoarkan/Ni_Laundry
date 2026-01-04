@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\LaporanKeuanganNiLaundry;
 
 class AdminController extends Controller
 {
@@ -504,5 +506,11 @@ public function bayarTunai($id) {
         return $response;
     }
 
-    
+    public function exportExcel(Request $request) 
+    {
+        $filter = $request->input('filter', 'mingguan');
+        $namaFile = 'Laporan_Keuangan_' . ucfirst($filter) . '_' . date('d-m-Y') . '.xlsx';
+        
+        return Excel::download(new LaporanKeuanganNiLaundry($filter), $namaFile);
+    }
 }
