@@ -14,18 +14,16 @@
     <meta name="description" content="Jasa laundry kiloan dan satuan terbaik dengan teknologi modern.">
     <meta name="theme-color" content="#0f172a">
 
+    {{-- Pastikan logo ini sudah di-resize jadi 100x100px (file size kecil) --}}
     <link rel="icon" href="{{ asset('img/logo.webp') }}" type="image/webp">
     
-    {{-- Google Fonts tetap pakai CDN tidak masalah --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    {{-- 
+        PERHATIAN: 
+        Google Fonts & AOS CSS sudah dihapus dari sini.
+        Pastikan kamu sudah melakukan "npm run build" setelah update app.css & app.js 
+    --}}
     
-    {{-- Icon & Library CSS --}}
-    {{-- MDI sudah dipindah ke app.css --}}
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
-    {{-- VITE DIRECTIVE (Lenis, MDI, SweetAlert dimuat dari sini) --}}
+    {{-- VITE DIRECTIVE (Memuat Font Outfit, AOS, Tailwind, JS Logic) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -139,6 +137,7 @@
 
     <main id="main-content" class="flex-grow pt-32 pb-12 px-4 md:px-8 max-w-7xl mx-auto w-full z-10 relative">
         @if(session('success'))
+            {{-- Alert sudah bagus, pakai AlpineJS --}}
             <div x-data="{ show: true }" x-show="show" class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center gap-3 text-emerald-700 shadow-sm" data-aos="fade-down">
                 <i class="ph-fill ph-check-circle text-xl"></i>
                 <span class="font-medium text-sm">{{ session('success') }}</span>
@@ -149,6 +148,7 @@
     </main>
 
     <footer class="bg-slate-900 text-slate-300 mt-20 pt-20 pb-10 rounded-t-[3rem] relative overflow-hidden">
+        {{-- Background Footer --}}
         <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         <div class="absolute -top-24 -left-24 w-96 h-96 bg-brand-500/20 rounded-full blur-[100px] pointer-events-none"></div>
         <div class="absolute bottom-0 right-0 w-96 h-96 bg-fresh-500/10 rounded-full blur-[100px] pointer-events-none"></div>
@@ -157,7 +157,8 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 mb-16">
                 <div class="lg:col-span-4 space-y-6">
                     <a href="/" class="flex items-center gap-2 group w-fit">
-                        <img src="{{ asset('img/logo.webp') }}" alt="Logo Ni Laundry" class="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                        {{-- Optimasi Logo Footer --}}
+                        <img src="{{ asset('img/logo.webp') }}" alt="Logo Ni Laundry" width="40" height="40" class="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
                         <span class="text-2xl font-bold tracking-tight">
                             Ni Laundry<span class="text-fresh-400">.</span>
                         </span>
@@ -171,6 +172,7 @@
                         <a href="https://wa.me/+6282147556964" target="_blank" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-all"><i class="ph-fill ph-whatsapp-logo text-lg"></i></a>
                     </div>
                 </div>
+                {{-- Link Footer Lainnya (Tetap sama) --}}
                 <div class="lg:col-span-2 space-y-6">
                     <h4 class="font-bold text-lg">Layanan</h4>
                     <ul class="space-y-4 text-sm text-slate-400">
@@ -194,13 +196,15 @@
         </div>
     </footer>
 
-    {{-- SCRIPTS (Alpine, AOS, GSAP tetap CDN) --}}
+    {{-- SCRIPTS --}}
+    {{-- Alpine & Phosphor tetap CDN (ringan/tidak masalah) --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script defer src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    {{-- GSAP tetap CDN untuk menjalankan script preloader di bawah --}}
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
     
-    {{-- CATATAN: CDN SweetAlert2 dan MDI sudah DIHAPUS, jalan via app.js/app.css --}}
+    {{-- NOTE: Script AOS CDN sudah DIHAPUS karena sudah jalan via app.js --}}
 
     <script>
         // Safety Timeout
@@ -210,12 +214,11 @@
         }, 5000);
 
         window.addEventListener('load', () => {
-            // 1. Init AOS (Masih pakai CDN)
-            if(typeof AOS !== 'undefined') AOS.init({ once: true, duration: 600, offset: 50 });
+            // 1. Init AOS -> SUDAH DIPINDAH KE APP.JS (Disini dihapus)
 
-            // 2. Lenis (via NPM/app.js)
+            // 2. Lenis -> SUDAH DI APP.JS
 
-            // 3. Init GSAP Preloader (Masih pakai CDN)
+            // 3. Init GSAP Preloader
             const preloader = document.getElementById('preloader');
             if (!sessionStorage.getItem('introShown')) {
                 if(typeof gsap !== 'undefined') {

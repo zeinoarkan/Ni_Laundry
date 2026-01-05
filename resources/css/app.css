@@ -1,8 +1,18 @@
-/* 1. Import Utama Tailwind v4 */
-@import "tailwindcss";
+@import "@fontsource/outfit/300.css";
+@import "@fontsource/outfit/400.css";
+@import "@fontsource/outfit/500.css";
+@import "@fontsource/outfit/600.css";
+@import "@fontsource/outfit/700.css";
+@import "@fontsource/outfit/800.css";
 
-/* 2. Import Material Design Icons (BARU) */
+/* 2. Import AOS CSS (Pengganti Unpkg CDN) */
+@import "aos/dist/aos.css";
+
+/* 3. Import MDI (Yang tadi sudah ada) */
 @import "@mdi/font/css/materialdesignicons.css";
+
+/* 4. Import Utama Tailwind v4 */
+@import "tailwindcss";
 
 /* 3. Konfigurasi Tema & Variabel */
 @theme {
