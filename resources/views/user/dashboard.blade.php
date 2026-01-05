@@ -13,12 +13,11 @@
                 src="https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=1200&auto=format&fit=crop" 
                 srcset="
                     https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=600&auto=format&fit=crop 600w,
-                    https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=1200&auto=format&fit=crop 1200w
+                    https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=900&auto=format&fit=crop 900w
                 "
-                sizes="(max-width: 600px) 100vw, 100vw"
+                sizes="100vw"
                 alt="Laundry Background" 
                 class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay"
-                {{-- PENTING: Jangan pakai loading="lazy" untuk gambar paling atas (LCP), pakai fetchpriority="high" --}}
                 fetchpriority="high"
             >
             
