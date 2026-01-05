@@ -1,80 +1,34 @@
 <!DOCTYPE html>
-<html lang="id"> <head>
+<html lang="id"> 
+<head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
     <title>@yield('title', 'Ni Laundry')</title>
+    <style> 
+        [x-cloak] { display: none !important; }
+    </style>
+
     <meta name="description" content="Jasa laundry kiloan dan satuan terbaik dengan teknologi modern.">
     <meta name="theme-color" content="#0f172a">
 
     <link rel="icon" href="{{ asset('img/logo.webp') }}" type="image/webp">
     
+    {{-- Google Fonts tetap pakai CDN tidak masalah --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
+    
+    {{-- Icon & Library CSS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['"Outfit"', 'sans-serif'] },
-                    fontSize: {
-                        'fluid-h1': 'clamp(1.75rem, 4vw + 1rem, 4rem)', 
-                    },
-                    colors: {
-                        // Warna ini WAJIB sama dengan yang dipakai di Login/Register
-                        brand: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' },
-                        fresh: { 400: '#22d3ee', 500: '#06b6d4' }
-                    },
-                    boxShadow: {
-                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
-                        'glow': '0 0 20px rgba(37, 99, 235, 0.5)', // Efek glow biru
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        [x-cloak] { display: none !important; }
-        
-        body {
-            background-color: #F8FAFC;
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(213,100%,88%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 100%, hsla(189,100%,88%,1) 0, transparent 50%);
-            background-attachment: fixed;
-            -webkit-font-smoothing: antialiased; /* Teks tajam di Mac/iPhone */
-            -moz-osx-font-smoothing: grayscale;
-            overflow-x: hidden;
-        }
-
-        /* Preloader */
-        #preloader {
-            position: fixed;
-            inset: 0;
-            background: #0f172a;
-            z-index: 99999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            will-change: transform;
-        }
-        
-        /* Lenis Recommended CSS */
-        html.lenis { height: auto; }
-        .lenis.lenis-smooth { scroll-behavior: auto !important; }
-        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-        .lenis.lenis-stopped { overflow: hidden; }
-        .lenis.lenis-scrolling iframe { pointer-events: none; }
-    </style>
+    {{-- VITE DIRECTIVE (PENGGANTI CDN TAILWIND) --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body class="text-slate-600 antialiased font-sans flex flex-col min-h-screen">
 
     <div id="preloader" role="status">
@@ -88,7 +42,6 @@
         </div>
     </div>
 
-    {{-- SCRIPT PENTING: Mencegah kedip (flash) Preloader saat ganti halaman --}}
     <script>
         if (sessionStorage.getItem('introShown')) {
             document.getElementById('preloader').style.display = 'none';
@@ -116,16 +69,12 @@
                 {{-- DESKTOP MENU --}}
                 <div class="hidden md:flex items-center gap-1 bg-white/50 p-1.5 rounded-full border border-white/50 backdrop-blur-sm">
                     @if(Auth::guard('admin')->check())
-                        {{-- MENU KHUSUS ADMIN --}}
                         <a href="/admin/dashboard" class="p-3 rounded-xl font-bold hover:bg-slate-100">Dashboard</a>
                         <a href="/admin/pesanan" class="p-3 rounded-xl font-bold hover:bg-slate-100">Kelola Pesanan</a>
                         <a href="/admin/layanan" class="p-3 rounded-xl font-bold hover:bg-slate-100">Kelola Layanan</a>
                         <a href="/admin/diskon" class="p-3 rounded-xl font-bold hover:bg-slate-100">Monitoring Diskon</a>
                         <a href="/admin/users" class="p-3 rounded-xl font-bold hover:bg-slate-100">Kelola Admin</a>
-                        
-
                     @else 
-                        {{-- MENU UMUM (GUEST & MEMBER) --}}
                         <a href="/" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('/') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Beranda</a> 
                         <a href="/layanan" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('layanan') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Layanan</a>
                         @auth
@@ -144,12 +93,10 @@
                             </span>
                         </div>
                         
-                        {{-- PERBAIKAN LOGOUT ICON (USER) --}}
                         <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-red-50 text-slate-600 hover:text-red-500 transition-all" title="Logout">
                             <i class="ph-bold ph-sign-out text-xl"></i>
                         </a>
 
-                        {{-- FORM LOGOUT TERSEMBUNYI (WAJIB ADA) --}}
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                             @csrf
                         </form>
@@ -172,20 +119,15 @@
         <div x-show="mobileOpen" x-collapse x-cloak class="md:hidden absolute top-full left-0 w-full px-4 mt-2">
             <div class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-4 flex flex-col gap-3">
                 
-                {{-- Mobile: Menu Umum (Selalu Muncul) --}}
                 <a href="/" class="p-3 font-medium text-slate-700 {{ Request::is('/') ? 'bg-brand-50 text-brand-600 rounded-xl' : '' }}">Beranda</a>
                 <a href="/layanan" class="p-3 font-medium text-slate-700 {{ Request::is('layanan') ? 'bg-brand-50 text-brand-600 rounded-xl' : '' }}">Layanan</a>
-                
-                {{-- Mobile: Menu Member --}}
                 @auth
                     <a href="/riwayat" class="p-3 font-medium text-slate-700 {{ Request::is('riwayat') ? 'bg-brand-50 text-brand-600 rounded-xl' : '' }}">Riwayat</a>
                 @endauth
 
                 <div class="h-px bg-slate-100 my-1"></div>
 
-                {{-- Mobile: Auth Buttons --}}
                 @if(Auth::check() || Auth::guard('admin')->check())
-                     {{-- PERBAIKAN LOGOUT MOBILE --}}
                      <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="p-3 font-bold text-red-500 bg-red-50 rounded-xl text-center">Logout</a>
                 @else
                     <a href="/login" class="p-3 font-bold bg-slate-900 text-white text-center rounded-xl shadow-lg">Login Member</a>
@@ -249,11 +191,10 @@
             <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
                 <p>© 2025 Ni Laundry. All rights reserved.</p>
             </div>
-
         </div>
     </footer>
 
-    {{-- SCRIPTS --}}
+    {{-- SCRIPTS (Alpine, AOS, GSAP tetap CDN untuk kemudahan) --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
     <script defer src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -263,7 +204,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Safety Timeout (backup jika animasi macet)
+        // Safety Timeout
         setTimeout(() => {
             const p = document.getElementById('preloader');
             if(p && p.style.display !== 'none') p.style.display = 'none';
@@ -287,17 +228,13 @@
                 requestAnimationFrame(raf);
             }
 
-            // 3. Init GSAP Preloader (DENGAN LOGIC SESSION STORAGE)
+            // 3. Init GSAP Preloader
             const preloader = document.getElementById('preloader');
-            
-            // Cek apakah user sudah pernah lihat intro di sesi ini
             if (!sessionStorage.getItem('introShown')) {
-                // JIKA BELUM PERNAH (First Visit)
                 if(typeof gsap !== 'undefined') {
                     const tl = gsap.timeline({
                         onComplete: () => { 
                             preloader.style.display = 'none';
-                            // Set status bahwa intro sudah ditampilkan
                             sessionStorage.setItem('introShown', 'true');
                         }
                     });
@@ -307,8 +244,6 @@
                     preloader.style.display = 'none';
                 }
             } else {
-                // JIKA SUDAH PERNAH (Page Change / Refresh)
-                // Pastikan hidden (meskipun sudah di-handle script di atas body)
                 preloader.style.display = 'none';
             }
         });
