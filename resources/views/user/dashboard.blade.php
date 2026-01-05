@@ -9,8 +9,18 @@
         <div class="lg:col-span-7 relative overflow-hidden rounded-[2.5rem] bg-brand-600 shadow-glow group min-h-[350px] md:min-h-[400px] flex items-center" 
              data-aos="fade-right" data-aos-duration="1000">
              
-            <img src="https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=2070&auto=format&fit=crop"  alt="Laundry Background"
-                 class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay transition-transform duration-[3000ms] group-hover:scale-110 ease-out">
+            <img 
+                src="https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=1200&auto=format&fit=crop" 
+                srcset="
+                    https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=600&auto=format&fit=crop 600w,
+                    https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=1200&auto=format&fit=crop 1200w
+                "
+                sizes="(max-width: 600px) 100vw, 100vw"
+                alt="Laundry Background" 
+                class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay"
+                {{-- PENTING: Jangan pakai loading="lazy" untuk gambar paling atas (LCP), pakai fetchpriority="high" --}}
+                fetchpriority="high"
+            >
             
             <div class="absolute inset-0 bg-gradient-to-r from-brand-900 via-brand-800/80 to-transparent"></div>
             
@@ -138,10 +148,17 @@
         
         <div class="relative group" data-aos="fade-right">
             <div class="rounded-[3rem] overflow-hidden border border-slate-100 shadow-glass relative z-10">
-               <img src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=1080&auto=format&fit=crop" 
-               alt="Ni Laundry Service"
-               loading="lazy"
-                class="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-1000">
+               <img 
+                    src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=800&auto=format&fit=crop" 
+                    srcset="
+                        https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=400&auto=format&fit=crop 400w,
+                        https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=800&auto=format&fit=crop 800w
+                    "
+                    sizes="(max-width: 600px) 100vw, 50vw"
+                    alt="Ni Laundry Service" 
+                    loading="lazy" 
+                    class="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-300"
+                >
             </div>
 
             <div class="absolute -top-10 -left-10 w-40 h-40 bg-brand-50 rounded-full blur-3xl -z-0"></div>

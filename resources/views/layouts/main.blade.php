@@ -22,10 +22,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     {{-- Icon & Library CSS --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+    {{-- MDI sudah dipindah ke app.css --}}
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
-    {{-- VITE DIRECTIVE (Lenis akan dimuat dari sini) --}}
+    {{-- VITE DIRECTIVE (Lenis, MDI, SweetAlert dimuat dari sini) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -200,9 +200,7 @@
     <script defer src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
     
-    {{-- CATATAN: CDN Lenis sudah DIHAPUS, sekarang jalan via app.js --}}
-    
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- CATATAN: CDN SweetAlert2 dan MDI sudah DIHAPUS, jalan via app.js/app.css --}}
 
     <script>
         // Safety Timeout
@@ -215,7 +213,7 @@
             // 1. Init AOS (Masih pakai CDN)
             if(typeof AOS !== 'undefined') AOS.init({ once: true, duration: 600, offset: 50 });
 
-            // 2. Lenis sudah dipindah ke app.js (via NPM), jadi tidak perlu script di sini lagi.
+            // 2. Lenis (via NPM/app.js)
 
             // 3. Init GSAP Preloader (Masih pakai CDN)
             const preloader = document.getElementById('preloader');

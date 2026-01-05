@@ -1,7 +1,10 @@
 /* 1. Import Utama Tailwind v4 */
 @import "tailwindcss";
 
-/* 2. Konfigurasi Tema & Variabel */
+/* 2. Import Material Design Icons (BARU) */
+@import "@mdi/font/css/materialdesignicons.css";
+
+/* 3. Konfigurasi Tema & Variabel */
 @theme {
     /* Font */
     --font-sans: "Outfit", sans-serif;
@@ -27,7 +30,7 @@
     --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.5);
 }
 
-/* 3. Base Styles (Body & Global) */
+/* 4. Base Styles (Body & Global) */
 @layer base {
     body {
         background-color: #F8FAFC;
@@ -41,15 +44,14 @@
     }
 }
 
-/* 4. Utilities Tambahan */
+/* 5. Utilities Tambahan */
 @layer utilities {
-    /* Penting untuk Alpine.js agar tidak "fouc" (flash of unstyled content) */
     [x-cloak] {
         display: none !important;
     }
 }
 
-/* 5. Style Komponen Preloader */
+/* 6. Style Komponen Preloader */
 #preloader {
     position: fixed;
     inset: 0;
@@ -62,24 +64,9 @@
     will-change: transform;
 }
 
-/* 6. STYLE WAJIB LENIS (Smooth Scroll) 
-   Ini diperlukan agar Lenis dari NPM berjalan normal */
-html.lenis, html.lenis body {
-    height: auto;
-}
-
-.lenis.lenis-smooth {
-    scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-    overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-    overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-    pointer-events: none;
-}
+/* 7. STYLE WAJIB LENIS (Smooth Scroll) */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-scrolling iframe { pointer-events: none; }
