@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
-    {{-- VITE DIRECTIVE (PENGGANTI CDN TAILWIND) --}}
+    {{-- VITE DIRECTIVE (Lenis akan dimuat dari sini) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -194,12 +194,13 @@
         </div>
     </footer>
 
-    {{-- SCRIPTS (Alpine, AOS, GSAP tetap CDN untuk kemudahan) --}}
+    {{-- SCRIPTS (Alpine, AOS, GSAP tetap CDN) --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
     <script defer src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
-    <script defer src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script>
+    
+    {{-- CATATAN: CDN Lenis sudah DIHAPUS, sekarang jalan via app.js --}}
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -211,24 +212,12 @@
         }, 5000);
 
         window.addEventListener('load', () => {
-            // 1. Init AOS
+            // 1. Init AOS (Masih pakai CDN)
             if(typeof AOS !== 'undefined') AOS.init({ once: true, duration: 600, offset: 50 });
 
-            // 2. Init Lenis (Smooth Scroll)
-            if(typeof Lenis !== 'undefined') {
-                const lenis = new Lenis({
-                    duration: 1.2,
-                    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
-                    smooth: true,
-                });
-                function raf(time) {
-                    lenis.raf(time);
-                    requestAnimationFrame(raf);
-                }
-                requestAnimationFrame(raf);
-            }
+            // 2. Lenis sudah dipindah ke app.js (via NPM), jadi tidak perlu script di sini lagi.
 
-            // 3. Init GSAP Preloader
+            // 3. Init GSAP Preloader (Masih pakai CDN)
             const preloader = document.getElementById('preloader');
             if (!sessionStorage.getItem('introShown')) {
                 if(typeof gsap !== 'undefined') {

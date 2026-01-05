@@ -1,15 +1,15 @@
-/* Import utama Tailwind v4 */
+/* 1. Import Utama Tailwind v4 */
 @import "tailwindcss";
 
-/* Konfigurasi Tema */
+/* 2. Konfigurasi Tema & Variabel */
 @theme {
-    /* 1. Font Family */
+    /* Font */
     --font-sans: "Outfit", sans-serif;
 
-    /* 2. Ukuran Font Fluid */
+    /* Text Fluid */
     --text-fluid-h1: clamp(1.75rem, 4vw + 1rem, 4rem);
 
-    /* 3. Warna Brand (Biru) */
+    /* Warna Brand (Biru) */
     --color-brand-50: #eff6ff;
     --color-brand-100: #dbeafe;
     --color-brand-200: #bfdbfe;
@@ -18,16 +18,16 @@
     --color-brand-700: #1d4ed8;
     --color-brand-900: #1e3a8a;
 
-    /* 4. Warna Fresh (Cyan) */
+    /* Warna Fresh (Cyan) */
     --color-fresh-400: #22d3ee;
     --color-fresh-500: #06b6d4;
 
-    /* 5. Custom Shadow */
+    /* Custom Shadow */
     --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
     --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.5);
 }
 
-/* Custom Styles (Layer Base) */
+/* 3. Base Styles (Body & Global) */
 @layer base {
     body {
         background-color: #F8FAFC;
@@ -41,15 +41,15 @@
     }
 }
 
-/* Utilities */
+/* 4. Utilities Tambahan */
 @layer utilities {
-    /* PERBAIKAN: Menggunakan selector attribute [x-cloak] agar dikenali Alpine.js */
+    /* Penting untuk Alpine.js agar tidak "fouc" (flash of unstyled content) */
     [x-cloak] {
         display: none !important;
     }
 }
 
-/* Komponen Preloader & Lenis */
+/* 5. Style Komponen Preloader */
 #preloader {
     position: fixed;
     inset: 0;
@@ -62,8 +62,24 @@
     will-change: transform;
 }
 
-html.lenis { height: auto; }
-.lenis.lenis-smooth { scroll-behavior: auto !important; }
-.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-.lenis.lenis-stopped { overflow: hidden; }
-.lenis.lenis-scrolling iframe { pointer-events: none; }
+/* 6. STYLE WAJIB LENIS (Smooth Scroll) 
+   Ini diperlukan agar Lenis dari NPM berjalan normal */
+html.lenis, html.lenis body {
+    height: auto;
+}
+
+.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+    overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+    pointer-events: none;
+}
