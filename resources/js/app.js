@@ -1,6 +1,10 @@
 import './bootstrap';
 import Lenis from 'lenis';
 import Swal from 'sweetalert2';
+import Alpine from 'alpinejs';
+
+window.Alpine = Alpine;
+Alpine.start();
 
 // 1. Import AOS JS (BARU)
 import AOS from 'aos';
