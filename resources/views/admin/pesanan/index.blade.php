@@ -114,6 +114,12 @@
 
                         {{-- 4. TAGIHAN & PEMBAYARAN --}}
                         <td class="px-6 py-5 align-top">
+                            @php
+                                $sisaTagihan = $p->total_harga - ($p->jumlah_bayar ?? 0);
+                                $isLunas = $sisaTagihan <= 0;
+                                $isDP = $p->jumlah_bayar > 0 && !$isLunas;
+                            @endphp
+
                             @if($p->status_pesanan == 'Dibatalkan')
                                 <span class="text-xs font-bold text-red-400 line-through block">Rp {{ number_format($p->total_harga, 0, ',', '.') }}</span>
                                 <span class="text-[10px] font-bold text-red-500 uppercase">Dibatalkan</span>
@@ -126,28 +132,39 @@
 
                             @elseif($p->berat == 0)
                                 <div class="text-xs font-bold text-slate-400 italic">Menunggu timbangan...</div>
+                            
                             @elseif($p->total_harga == 0)
                                 <span class="inline-block px-3 py-1 rounded-lg bg-emerald-50 text-emerald-600 font-bold text-xs border border-emerald-100">GRATIS</span>
+                            
                             @else
+                                {{-- Tampilan Nominal --}}
                                 <div class="font-bold text-slate-900 text-sm">Rp {{ number_format($p->total_harga, 0, ',', '.') }}</div>
 
-                                @if($p->jumlah_bayar >= $p->total_harga && $p->total_harga > 0)
+                                @if($isLunas)
                                     <div class="flex items-center gap-1 text-[10px] font-bold text-emerald-500 mt-1">
                                         <i class="ph-fill ph-check-circle"></i> Lunas
                                     </div>
-                                    <div class="text-[10px] text-slate-400 font-medium">via {{ $p->snap_token ? 'Midtrans' : 'Tunai/Cash' }}</div>
+                                    <div class="text-[10px] text-slate-400 font-medium">Total: Rp {{ number_format($p->jumlah_bayar, 0, ',', '.') }}</div>
                                 @else
-                                    <div class="flex items-center gap-1 text-[10px] font-bold text-slate-400 mt-1">
-                                        <i class="ph-fill ph-clock"></i> Belum Bayar
-                                    </div>
-                                    {{-- TOMBOL BAYAR TUNAI --}}
+                                    {{-- Tampilan Status Belum Lunas / DP --}}
+                                    @if($isDP)
+                                        <div class="flex items-center gap-1 text-[10px] font-bold text-amber-500 mt-1">
+                                            <i class="ph-fill ph-coin"></i> DP: Rp {{ number_format($p->jumlah_bayar, 0, ',', '.') }}
+                                        </div>
+                                        <div class="text-[10px] text-rose-500 font-bold mt-0.5">Kurang: Rp {{ number_format($sisaTagihan, 0, ',', '.') }}</div>
+                                    @else
+                                        <div class="flex items-center gap-1 text-[10px] font-bold text-slate-400 mt-1">
+                                            <i class="ph-fill ph-clock"></i> Belum Bayar
+                                        </div>
+                                    @endif
+
+                                    {{-- TOMBOL TRIGGER MODAL BAYAR --}}
                                     <div class="mt-2">
-                                        <form action="{{ url('/admin/pesanan/'.$p->id_pesanan.'/bayar-tunai') }}" method="POST" id="form-bayar-{{ $p->id_pesanan }}">
-                                            @csrf
-                                            <button type="button" data-id="{{ $p->id_pesanan }}" data-harga="{{ number_format($p->total_harga, 0, ',', '.') }}" class="btn-bayar flex items-center gap-1.5 px-3 py-1.5 bg-white text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-lg transition-all text-[10px] font-bold uppercase tracking-wide border border-emerald-200 hover:border-emerald-600 shadow-sm w-full justify-center group-btn relative overflow-hidden">
-                                                <span>Bayar Tunai</span>
-                                            </button>
-                                        </form>
+                                        <button type="button" 
+                                            onclick="openPaymentModal({{ $p->id_pesanan }}, {{ $p->total_harga }}, {{ $p->jumlah_bayar ?? 0 }})"
+                                            class="flex items-center gap-1.5 px-3 py-1.5 bg-white text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-lg transition-all text-[10px] font-bold uppercase tracking-wide border border-emerald-200 hover:border-emerald-600 shadow-sm w-full justify-center group-btn">
+                                            <span>{{ $isDP ? 'Lunasi Sisa' : 'Bayar Tunai' }}</span>
+                                        </button>
                                     </div>
                                 @endif
                             @endif
@@ -238,48 +255,150 @@
         @endif
     </div>
 
-    <script>
-    // 1. Event Listener untuk Tombol Bayar (CASH)
-    document.querySelectorAll('.btn-bayar').forEach(button => {
-        button.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            const harga = this.getAttribute('data-harga');
-            const form = document.getElementById(`form-bayar-${id}`);
+    {{-- MODAL PEMBAYARAN (TAILWIND STYLE) --}}
+    <div id="paymentModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closePaymentModal()"></div>
+        
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6">
+            <div class="bg-white rounded-[2rem] shadow-2xl border border-slate-100 overflow-hidden transform transition-all scale-100">
+                
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Pembayaran Kasir</h3>
+                        <p class="text-xs text-slate-500 font-medium">ID Pesanan: <span id="modalOrderId" class="font-bold text-brand-600">#000</span></p>
+                    </div>
+                    <button onclick="closePaymentModal()" class="w-8 h-8 rounded-full bg-white text-slate-400 hover:text-rose-500 hover:bg-rose-50 flex items-center justify-center transition-colors">
+                        <i class="ph-bold ph-x"></i>
+                    </button>
+                </div>
 
-            Swal.fire({
-                title: 'Terima Pembayaran?',
-                text: `Konfirmasi terima tunai sejumlah Rp ${harga}. Lanjutkan?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#0f172a',
-                cancelButtonColor: '#94a3b8',
-                confirmButtonText: 'Ya, Terima Uang!',
-                cancelButtonText: 'Batal',
-                reverseButtons: true,
-                background: '#fff',
-                customClass: { popup: 'rounded-[2rem] p-6', confirmButton: 'px-6 py-3 rounded-xl font-bold shadow-lg shadow-slate-200', cancelButton: 'px-6 py-3 rounded-xl font-bold' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    showLoading();
-                    setTimeout(() => { form.submit(); }, 800);
-                }
-            });
-        });
+                <form id="paymentForm" method="POST" action="" class="p-6 space-y-5">
+                    @csrf
+                    
+                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-2">
+                        <div class="flex justify-between text-sm text-slate-500">
+                            <span>Total Tagihan</span>
+                            <span class="font-bold text-slate-800" id="modalTotal">Rp 0</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-emerald-600">
+                            <span>Sudah Dibayar (DP)</span>
+                            <span class="font-bold" id="modalSudahBayar">- Rp 0</span>
+                        </div>
+                        <div class="border-t border-slate-200 my-2"></div>
+                        <div class="flex justify-between text-base">
+                            <span class="font-bold text-rose-500">SISA TAGIHAN</span>
+                            <span class="font-bold text-rose-600 text-lg" id="modalSisa">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Uang Diterima (Opsional)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <span class="text-slate-400 font-bold">Rp</span>
+                            </div>
+                            <input type="number" name="uang_diterima" id="inputUang" 
+                                class="w-full pl-10 pr-4 py-3 bg-white border-2 border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-brand-500 transition-colors placeholder-slate-300" 
+                                placeholder="0">
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2 ml-1">Kosongkan jika uang pas. Isi nominal untuk hitung kembalian/DP.</p>
+                    </div>
+
+                    <div id="boxKembalian" class="hidden bg-emerald-50 rounded-xl p-3 border border-emerald-100 text-center">
+                        <span class="text-xs font-bold text-emerald-600 block uppercase tracking-wider">Kembalian</span>
+                        <span class="text-xl font-bold text-emerald-700" id="textKembalian">Rp 0</span>
+                    </div>
+                    
+                    <div id="boxStatus" class="hidden bg-amber-50 rounded-xl p-3 border border-amber-100 text-center">
+                        <span class="text-xs font-bold text-amber-600 block uppercase tracking-wider">Status Pembayaran</span>
+                        <span class="text-sm font-bold text-amber-700" id="textStatus">Menjadi DP (Belum Lunas)</span>
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-brand-600 transition-all shadow-lg shadow-slate-200 hover:shadow-brand-200 flex items-center justify-center gap-2">
+                        <i class="ph-bold ph-check-circle"></i>
+                        <span>Proses Pembayaran</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const modal = document.getElementById('paymentModal');
+    const form = document.getElementById('paymentForm');
+    const inputUang = document.getElementById('inputUang');
+    let sisaTagihanGlobal = 0;
+
+    function openPaymentModal(id, total, sudahBayar) {
+        const sisa = total - sudahBayar;
+        sisaTagihanGlobal = sisa;
+
+        document.getElementById('modalOrderId').innerText = '#' + String(id).padStart(3, '0');
+        document.getElementById('modalTotal').innerText = formatRupiah(total);
+        document.getElementById('modalSudahBayar').innerText = '- ' + formatRupiah(sudahBayar);
+        document.getElementById('modalSisa').innerText = formatRupiah(sisa);
+
+        inputUang.value = ''; 
+        document.getElementById('boxKembalian').classList.add('hidden');
+        document.getElementById('boxStatus').classList.add('hidden');
+
+        form.action = `/admin/pesanan/${id}/bayar-tunai`;
+
+        modal.classList.remove('hidden');
+        
+        setTimeout(() => { inputUang.focus(); }, 100);
+    }
+
+    function closePaymentModal() {
+        modal.classList.add('hidden');
+    }
+
+    inputUang.addEventListener('keyup', function() {
+        const uangMasuk = parseInt(this.value) || 0;
+        const boxKembalian = document.getElementById('boxKembalian');
+        const boxStatus = document.getElementById('boxStatus');
+
+        if(uangMasuk > 0) {
+            if (uangMasuk >= sisaTagihanGlobal) {
+                const kembalian = uangMasuk - sisaTagihanGlobal;
+                document.getElementById('textKembalian').innerText = formatRupiah(kembalian);
+                
+                boxKembalian.classList.remove('hidden');
+                boxStatus.classList.add('hidden');
+            } else {
+                const kurang = sisaTagihanGlobal - uangMasuk;
+                document.getElementById('textStatus').innerText = `DP: Masih Kurang ${formatRupiah(kurang)}`;
+                
+                boxKembalian.classList.add('hidden');
+                boxStatus.classList.remove('hidden');
+            }
+        } else {
+            boxKembalian.classList.add('hidden');
+            boxStatus.classList.add('hidden');
+        }
     });
 
-    // 2. Event Listener untuk Tombol REFUND (MANUAL)
+    form.addEventListener('submit', function() {
+        closePaymentModal();
+        showLoading();
+    });
+
+    function formatRupiah(angka) {
+        return 'Rp ' + new Intl.NumberFormat('id-ID').format(angka);
+    }
+
     document.querySelectorAll('.btn-refund').forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
             const total = this.getAttribute('data-total');
-            const form = document.getElementById(`form-refund-${id}`);
+            const formRefund = document.getElementById(`form-refund-${id}`);
 
             Swal.fire({
                 title: 'Proses Refund?',
-                html: `Anda akan mengubah status menjadi <b>Dikembalikan</b>.<br>Pastikan Anda sudah mentransfer manual <b>Rp ${total}</b> ke pelanggan.`,
+                html: `Anda akan mengubah status menjadi <b>Dikembalikan</b>.<br>Pastikan Anda sudah mentransfer manual <b>${total}</b> ke pelanggan.`, // Note: total disini string formatted
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d97706', // Amber-600
+                confirmButtonColor: '#d97706', 
                 cancelButtonColor: '#94a3b8',
                 confirmButtonText: 'Ya, Saya Sudah Transfer',
                 cancelButtonText: 'Batal',
@@ -289,13 +408,13 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     showLoading();
-                    setTimeout(() => { form.submit(); }, 800);
+                    setTimeout(() => { formRefund.submit(); }, 800);
                 }
             });
         });
     });
 
-    // Helper: Loading Animation
+
     function showLoading() {
         Swal.fire({
             title: '', icon: '', width: 400,
@@ -314,20 +433,18 @@
         });
     }
 
-    // Alert Sukses
     @if(session('success'))
         Swal.fire({
-            icon: 'success', title: 'Berhasil!', text: "{{ session('success') }}", timer: 3000, showConfirmButton: false, background: '#ffffff',
+            icon: 'success', title: 'Berhasil!', text: "{!! session('success') !!}", timer: 4000, showConfirmButton: false, background: '#ffffff',
             customClass: { popup: 'rounded-[2rem] p-6 shadow-xl border border-emerald-100', title: 'text-emerald-600 font-bold' }
         });
     @endif
 
-    // Alert Error
     @if(session('error'))
         Swal.fire({
             icon: 'error', title: 'Gagal!', text: "{{ session('error') }}", customClass: { popup: 'rounded-[2rem] p-6' }
         });
     @endif
-    </script>
+</script>
 </div>
 @endsection

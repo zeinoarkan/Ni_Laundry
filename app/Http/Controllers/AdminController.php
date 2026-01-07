@@ -18,7 +18,6 @@ use App\Exports\LaporanKeuanganNiLaundry;
 class AdminController extends Controller
 {
     public function dashboard(Request $request) {
-    // 1. Data Keuangan (Real Cash Flow)
     $pemasukan_hari_ini = Pesanan::whereDate('tanggal_pesan', Carbon::today())
         ->sum('jumlah_bayar'); 
 
@@ -26,26 +25,22 @@ class AdminController extends Controller
         ->whereYear('tanggal_pesan', Carbon::now()->year)
         ->sum('jumlah_bayar');
 
-    // Piutang = Total Harga - Jumlah Bayar (Untuk pesanan yang belum lunas)
     $piutang = Pesanan::whereColumn('total_harga', '>', 'jumlah_bayar')
         ->where('status_pesanan', '!=', 'Dibatalkan')
         ->sum(DB::raw('total_harga - jumlah_bayar'));
 
-    // 2. Data Operasional (Counter Status)
     $status_counts = [
         'baru' => Pesanan::where('status_pesanan', 'Menunggu Pembayaran')->count(),
         'proses' => Pesanan::where('status_pesanan', 'Diproses')->count(),
         'siap' => Pesanan::where('status_pesanan', 'Selesai')->count(), 
     ];
 
-    // 3. LOGIKA CHART DINAMIS
     $filter = $request->input('filter', 'mingguan');
     $chart_data = [];
     $chart_label = [];
-    $chart_title = ''; // Inisialisasi variabel judul
+    $chart_title = '';
 
     if ($filter == 'bulanan') {
-        // --- MODE BULANAN (Jan - Des Tahun Ini) ---
         $chart_title = 'Pemasukan Tahun ' . date('Y');
         
         for ($i = 1; $i <= 12; $i++) {
@@ -60,7 +55,6 @@ class AdminController extends Controller
         }
 
     } elseif ($filter == 'tahunan') {
-        // --- MODE TAHUNAN (5 Tahun Terakhir) ---
         $chart_title = 'Pemasukan 5 Tahun Terakhir';
         
         for ($i = 4; $i >= 0; $i--) {
@@ -74,7 +68,6 @@ class AdminController extends Controller
         }
 
     } else {
-        // --- MODE MINGGUAN (7 Hari Terakhir) - DEFAULT ---
         $chart_title = 'Pemasukan 7 Hari Terakhir';
         
         for ($i = 6; $i >= 0; $i--) {
@@ -88,7 +81,6 @@ class AdminController extends Controller
         }
     }
 
-    // 4. Data Pesanan Terbaru
     $pesanan_terbaru = Pesanan::with(['pelanggan', 'layanan'])
         ->where('status_pesanan', 'Selesai')
         ->whereColumn('jumlah_bayar', '>=', 'total_harga')
@@ -96,7 +88,6 @@ class AdminController extends Controller
         ->take(5)
         ->get();
 
-    // 5. PACKING DATA KE VIEW
     $data = [
         'total_pelanggan' => Pelanggan::count(),
         'pemasukan_hari_ini' => $pemasukan_hari_ini,
@@ -104,11 +95,10 @@ class AdminController extends Controller
         'piutang' => $piutang,
         'status_counts' => $status_counts,
         
-        // Data Grafik
         'chart_label' => $chart_label, 
         'chart_data' => $chart_data,
-        'chart_title' => $chart_title, // <--- INI WAJIB ADA
-        'current_filter' => $filter,   // <--- INI JUGA WAJIB ADA
+        'chart_title' => $chart_title, 
+        'current_filter' => $filter,   
         
         'pesanan_terbaru' => $pesanan_terbaru
     ];
@@ -117,77 +107,63 @@ class AdminController extends Controller
 }
 
     public function updateStatus(Request $request, $id) {
-    // 1. Ambil data pesanan
     $pesanan = Pesanan::with(['layanan', 'pelanggan'])->findOrFail($id);
     
     $status_lama = $pesanan->status_pesanan;
     $pesanan->status_pesanan = $request->status_pesanan;
     $pesanan->save();
 
-    // 2. Cek Logika Status 'Selesai'
     if ($request->status_pesanan == 'Selesai' && $status_lama != 'Selesai') {
         
         $pelanggan = $pesanan->pelanggan; 
         
         if ($pelanggan && $pesanan->layanan) {
             
-            // --- LOGIKA POIN (TETAP SAMA) ---
             $harga_per_kg = $pesanan->layanan->harga;
             $berat_poin = 0;
 
             if ($harga_per_kg > 0) {
-                // Konversi Rupiah ke Berat untuk Poin
                 $berat_poin = $pesanan->total_harga / $harga_per_kg;
             }
 
             $pelanggan->progres_kg += $berat_poin;
 
-            // Cek Bonus Kelipatan 8
             while ($pelanggan->progres_kg >= 8) {
                 $pelanggan->increment('bonus'); 
                 $pelanggan->progres_kg -= 8;    
             }
             
             $pelanggan->save();
-            // --------------------------------
 
-            // --- LOGIKA PESAN WA DINAMIS (BARU) ---
             try {
-                    // Cek Status Pembayaran
                     $sudahBayar = $pesanan->jumlah_bayar;
                     $totalTagihan = $pesanan->total_harga;
                     $sisaTagihan = $totalTagihan - $sudahBayar;
                     
-                    // Anggap lunas jika sisa tagihan <= 0
                     $isLunas = $sisaTagihan <= 0;
 
                     $pesanWA = "Halo Kak *{$pelanggan->nama}*!\n\n";
                     $pesanWA .= "Update status pesanan *#{$pesanan->id_pesanan}*:\n";
                     $pesanWA .= "Status: *SELESAI*\n\n";
                     
-                    // PERBAIKAN DI SINI:
-                    // Menggunakan titik (.) untuk menggabungkan string dengan logika if/else singkat
                     $satuan = ($pesanan->layanan->jenis == 'Kiloan') ? 'Kg' : 'Pcs';
                     $pesanWA .= "Total Berat/Jml: {$pesanan->berat} {$satuan}\n";
 
                     if ($isLunas) {
-                        // SKENARIO A: SUDAH LUNAS
                         $pesanWA .= "Status Bayar: *LUNAS*\n\n";
                         $pesanWA .= "Cucian Anda sudah bersih dan wangi. Silakan diambil di outlet kami atau hubungi admin untuk pengantaran.\n\n";
                     } else {
-                        // SKENARIO B: BELUM LUNAS (UTANG)
                         $pesanWA .= "Total Tagihan: Rp " . number_format($totalTagihan, 0, ',', '.') . "\n";
                         $pesanWA .= "Sudah Dibayar: Rp " . number_format($sudahBayar, 0, ',', '.') . "\n";
                         $pesanWA .= "Kekurangan: *Rp " . number_format($sisaTagihan, 0, ',', '.') . "*\n\n";
                         
                         $pesanWA .= "Cucian sudah siap! Mohon selesaikan pembayaran saat pengambilan, atau klik link di bawah ini untuk pembayaran online:\n";
-                        // Pastikan domain sesuai
                         $pesanWA .= url('/pesanan') . " \n\n"; 
                     }
 
                     $pesanWA .= "----------------\n";
                     $pesanWA .= "Poin Loyalty Anda: {$pelanggan->progres_kg}/8 Poin\n";
-                    $pesanWA .= "Terima kasih telah menggunakan Ni Laundry! 🙏";
+                    $pesanWA .= "Terima kasih telah menggunakan Ni Laundry! ";
 
                     $this->sendWhatsapp($pelanggan->no_hp, $pesanWA);
                     
@@ -201,42 +177,81 @@ class AdminController extends Controller
     return back()->with('success', 'Status berhasil diubah menjadi Selesai.');
 }
 
-// Tambahkan ini di dalam class AdminController
 
-public function bayarTunai($id) {
-    // 1. Ambil Data
-    $pesanan = Pesanan::with('pelanggan')->findOrFail($id);
+public function bayarTunai(Request $request, $id) {
+    return DB::transaction(function() use ($request, $id) {
+        $pesanan = Pesanan::with('pelanggan')->findOrFail($id);
 
-    // 2. Cek Validasi
-    if ($pesanan->total_harga <= 0) {
-        return back()->with('error', 'Pesanan belum ditimbang (Total harga 0).');
-    }
+        $totalTagihan = $pesanan->total_harga;
+        $sudahBayar   = $pesanan->jumlah_bayar ?? 0; 
+        $sisaTagihan  = $totalTagihan - $sudahBayar;
 
-    // 3. Set Lunas (Cash)
-    $pesanan->jumlah_bayar = $pesanan->total_harga; // Bayar Full
-    
-    // Opsi: Jika status masih 'Menunggu Pembayaran', otomatis ubah ke 'Diproses'
-    if ($pesanan->status_pesanan == 'Menunggu Pembayaran') {
-        $pesanan->status_pesanan = 'Diproses';
-    }
-    
-    $pesanan->save();
+        if ($sisaTagihan <= 0) {
+            return back()->with('error', 'Pesanan ini SUDAH LUNAS sepenuhnya.');
+        }
 
-    // 4. Kirim WA Kwitansi Lunas (Opsional tapi Keren)
-    try {
-        $pelanggan = $pesanan->pelanggan;
-        $pesanWA = "Terima kasih Kak *{$pelanggan->nama}*!\n\n";
-        $pesanWA .= "Pembayaran TUNAI untuk pesanan *#{$pesanan->id_pesanan}* telah kami terima.\n";
-        $pesanWA .= "Nominal: Rp " . number_format($pesanan->total_harga, 0, ',', '.') . "\n";
-        $pesanWA .= "Status Bayar: *LUNAS*\n\n";
-        $pesanWA .= "Kami akan segera memproses/menyerahkan cucian Anda.";
+        $uangDiterima = $request->filled('uang_diterima') ? $request->uang_diterima : $sisaTagihan;
+
         
-        $this->sendWhatsapp($pelanggan->no_hp, $pesanWA);
-    } catch (\Exception $e) {
-        // Silent error
-    }
+        $nominalMasuk = 0;
+        $kembalian = 0;
+        $statusBayar = '';
 
-    return back()->with('success', 'Pembayaran Tunai berhasil dicatat. Status LUNAS.');
+        if ($uangDiterima >= $sisaTagihan) {
+            $nominalMasuk = $sisaTagihan;
+            $kembalian = $uangDiterima - $sisaTagihan;
+            $statusBayar = 'LUNAS';
+        } else {
+            $nominalMasuk = $uangDiterima;
+            $kembalian = 0;
+            $statusBayar = 'DP / BELUM LUNAS';
+        }
+
+        $pesanan->jumlah_bayar += $nominalMasuk;
+
+        if ($pesanan->status_pesanan == 'Menunggu Pembayaran' && $pesanan->jumlah_bayar > 0) {
+            $pesanan->status_pesanan = 'Diproses';
+        }
+
+        $pesanan->save();
+
+        try {
+            if ($pesanan->pelanggan && $pesanan->pelanggan->no_hp) {
+                $sisaBaru = $totalTagihan - $pesanan->jumlah_bayar;
+                
+                $pesanWA = "Halo Kak *{$pesanan->pelanggan->nama}*!\n\n";
+                $pesanWA .= "Pembayaran TUNAI diterima untuk pesanan *#{$pesanan->id_pesanan}*.\n";
+                $pesanWA .= "Nominal Masuk: Rp " . number_format($nominalMasuk, 0, ',', '.') . "\n";
+                $pesanWA .= "Sisa Tagihan: Rp " . number_format($sisaBaru, 0, ',', '.') . "\n\n";
+                
+                if ($sisaBaru <= 0) {
+                    $pesanWA .= "Status: *LUNAS*\n";
+                    if ($pesanan->status_pesanan == 'Selesai') {
+                        $pesanWA .= "Silakan ambil cucian Anda. Terima kasih!";
+                    } else {
+                        $pesanWA .= "Cucian sedang diproses.";
+                    }
+                } else {
+                    $pesanWA .= "Status: *BELUM LUNAS (DP)*\n";
+                    $pesanWA .= "Mohon lunasi saat pengambilan.";
+                }
+
+                $this->sendWhatsapp($pesanan->pelanggan->no_hp, $pesanWA);
+            }
+        } catch (\Exception $e) {
+            \Log::error("Gagal kirim WA: " . $e->getMessage());
+        }
+
+        $msg = "Pembayaran Berhasil dicatat (Rp " . number_format($nominalMasuk) . ").";
+        if ($kembalian > 0) {
+            $msg .= " KEMBALIAN: Rp " . number_format($kembalian, 0, ',', '.');
+        }
+        if ($statusBayar == 'DP / BELUM LUNAS') {
+            $msg .= " Masih kurang: Rp " . number_format($sisaTagihan - $nominalMasuk, 0, ',', '.');
+        }
+
+        return back()->with('success', $msg);
+    });
 }
 
     // CRUD LAYANAN
@@ -255,7 +270,7 @@ public function bayarTunai($id) {
             'nama_layanan' => $request->nama_layanan,
             'harga' => $request->harga,
             'jenis' => $request->jenis,
-            'id_admin' => Auth::guard('admin')->id() // Ambil ID Admin yg login
+            'id_admin' => Auth::guard('admin')->id() 
         ]);
         return redirect('/admin/layanan')->with('success', 'Layanan berhasil ditambahkan');
     }
@@ -330,24 +345,18 @@ public function bayarTunai($id) {
     public function pesananUpdate(Request $request, $id) {
     $pesanan = Pesanan::with('pelanggan')->findOrFail($id);
     
-    // Siapkan data update
     $dataUpdate = [
         'berat' => $request->berat,
         'total_harga' => $request->total_harga, 
         'status_pesanan' => $request->status_pesanan,
     ];
 
-    // LOGIKA BAYAR CASH MANUAL (Di halaman Edit)
-    // Hanya update jumlah_bayar jika admin mengisinya di form
     if ($request->filled('jumlah_bayar')) {
         $dataUpdate['jumlah_bayar'] = $request->jumlah_bayar;
     }
-    // Jika tidak diisi, biarkan nilai lama (jangan di-reset ke 0)
 
     $pesanan->update($dataUpdate);
 
-        // --- TAMBAHAN LOGIKA WA ---
-        // Jika Admin mengubah status jadi "Menunggu Pembayaran", kirim WA tagihan ke User
         if ($request->status_pesanan == 'Menunggu Pembayaran') {
             try {
                 $pelanggan = $pesanan->pelanggan;
@@ -359,82 +368,58 @@ public function bayarTunai($id) {
 
                 $this->sendWhatsapp($pelanggan->no_hp, $pesanWA);
             } catch (\Exception $e) {
-                // Abaikan jika WA gagal, tetap lanjut redirect
             }
         }
-        // ---------------------------
 
         return redirect('/admin/pesanan')->with('success', 'Pesanan diperbarui. Notifikasi tagihan (jika ada) telah dikirim ke pelanggan.');
     }
 
     public function processRefund($id) {
-        // 1. Ambil Data
-        $pesanan = Pesanan::with(['pelanggan', 'layanan'])->findOrFail($id);
+        // Gunakan Transaction agar aman
+        return DB::transaction(function() use ($id) {
+            $pesanan = Pesanan::with(['pelanggan', 'layanan'])->findOrFail($id);
 
-        // 2. Validasi: Hanya bisa refund jika sudah ada pembayaran
-        if ($pesanan->jumlah_bayar <= 0) {
-            return back()->with('error', 'Pesanan ini belum dibayar, tidak ada dana yang bisa di-refund.');
-        }
+            // 1. VALIDASI: Cek apakah sudah bayar
+            if ($pesanan->jumlah_bayar <= 0) {
+                return back()->with('error', 'Pesanan ini belum dibayar, tidak ada dana yang bisa di-refund.');
+            }
 
-        // Simpan jumlah yang di-refund untuk pesan WA
-        $nominalRefund = $pesanan->jumlah_bayar;
+            // 2. VALIDASI LOGIKA BARU: Blokir jika sudah Selesai
+            // Pesanan 'Selesai' dianggap final (barang sudah dibawa pulang).
+            if ($pesanan->status_pesanan == 'Selesai') {
+                return back()->with('error', 'GAGAL! Pesanan berstatus SELESAI tidak bisa di-refund. Transaksi dianggap final.');
+            }
 
-        // 3. LOGIKA TARIK KEMBALI POIN (Anti-Cheat)
-        // Jika status sebelumnya 'Selesai', poin yang didapat harus ditarik lagi.
-        if ($pesanan->status_pesanan == 'Selesai') {
-            $pelanggan = $pesanan->pelanggan;
-            
-            if ($pelanggan && $pesanan->layanan) {
-                $harga_layanan = $pesanan->layanan->harga;
-                
-                // Hitung berapa poin yang dulu didapat dari pesanan ini
-                $berat_poin_dihapus = ($harga_layanan > 0) 
-                    ? floor($pesanan->total_harga / $harga_layanan) 
-                    : 0;
+            // Simpan nominal untuk pesan WA
+            $nominalRefund = $pesanan->jumlah_bayar;
 
-                $pelanggan->progres_kg -= $berat_poin_dihapus;
+            // --- Bagian tarik poin KITA HAPUS ---
+            // Karena kita memblokir status 'Selesai', maka otomatis pesanan ini
+            // belum pernah generate poin (poin hanya didapat saat status berubah ke Selesai).
+            // Jadi tidak perlu logika pengurangan poin di sini.
 
-                // Logika mundur jika poin minus (ambil dari bonus/set 0)
-                while ($pelanggan->progres_kg < 0) {
-                    if ($pelanggan->bonus > 0) {
-                        $pelanggan->decrement('bonus'); 
-                        $pelanggan->progres_kg += 8;    
-                    } else {
-                        $pelanggan->progres_kg = 0;     
-                        break; 
-                    }
+            // 3. Update Data Pesanan
+            $pesanan->jumlah_bayar = 0; 
+            $pesanan->status_pesanan = 'Dikembalikan'; // atau 'Dibatalkan'
+            $pesanan->save();
+
+            // 4. Kirim Notifikasi WA Refund
+            try {
+                if ($pesanan->pelanggan) {
+                    $pesanWA = "Halo Kak *{$pesanan->pelanggan->nama}*,\n\n";
+                    $pesanWA .= "Pengembalian Dana (Refund) untuk pesanan *#{$pesanan->id_pesanan}* telah diproses.\n";
+                    $pesanWA .= "Nominal Refund: *Rp " . number_format($nominalRefund, 0, ',', '.') . "*\n";
+                    $pesanWA .= "Status Pesanan: *DIBATALKAN*\n\n";
+                    $pesanWA .= "Dana telah dikembalikan. Mohon maaf atas ketidaknyamanannya. 🙏";
+
+                    $this->sendWhatsapp($pesanan->pelanggan->no_hp, $pesanWA);
                 }
-                
-                $pelanggan->save();
+            } catch (\Exception $e) {
+                Log::error("Gagal kirim WA Refund: " . $e->getMessage());
             }
-        }
 
-        // 4. Update Data Pesanan
-        $pesanan->jumlah_bayar = 0; // Uang dianggap keluar dari kasir
-        $pesanan->status_pesanan = 'Dikembalikan'; // Status khusus Refund
-        $pesanan->save();
-
-        // 5. Kirim WA Notifikasi Refund
-        try {
-            $pelanggan = $pesanan->pelanggan;
-            $pesanWA = "Halo Kak *{$pelanggan->nama}*,\n\n";
-            $pesanWA .= "Pengembalian Dana (Refund) untuk pesanan *#{$pesanan->id_pesanan}* telah diproses.\n";
-            $pesanWA .= "Nominal Refund: *Rp " . number_format($nominalRefund, 0, ',', '.') . "*\n";
-            $pesanWA .= "Status Pesanan: *DIKEMBALIKAN / BATAL*\n\n";
-            
-            if($nominalRefund > 0) {
-                $pesanWA .= "Dana telah kami kembalikan (Tunai/Transfer). Silakan cek mutasi atau konfirmasi ke admin.\n";
-            }
-            
-            $pesanWA .= "Mohon maaf atas ketidaknyamanannya. 🙏";
-
-            $this->sendWhatsapp($pelanggan->no_hp, $pesanWA);
-
-        } catch (\Exception $e) {
-            \Log::error("Gagal kirim WA Refund: " . $e->getMessage());
-        }
-
-        return back()->with('success', 'Refund berhasil diproses. Status diubah menjadi Dikembalikan & Poin ditarik (jika ada).');
+            return back()->with('success', 'Refund berhasil diproses. Status pesanan diubah menjadi Dikembalikan.');
+        });
     }
 
     public function pesananDestroy($id) {
@@ -477,7 +462,7 @@ public function bayarTunai($id) {
     return back()->with('success', 'Pesanan berhasil dihapus.');
 }
 
-    // CRUD ADMIN (PENGGUNA)
+    // CRUD ADMIN
 
     public function userAdminIndex() {
         $admins = Admin::all();

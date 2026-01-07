@@ -95,10 +95,10 @@
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Status Pengerjaan</label>
                         <div class="relative">
                             <select name="status_pesanan" class="w-full appearance-none bg-slate-50 border-2 border-slate-100 text-slate-900 text-sm rounded-2xl focus:bg-white focus:border-brand-500 block p-4 outline-none transition-all font-bold cursor-pointer hover:border-brand-200">
-                                <option value="Pending" {{ $pesanan->status_pesanan == 'Pending' ? 'selected' : '' }}>⏳ Pending (Menunggu Konfirmasi)</option>
-                                <option value="Menunggu Pembayaran" {{ $pesanan->status_pesanan == 'Menunggu Pembayaran' ? 'selected' : '' }}>💳 Menunggu Pembayaran (Tagihan Dikirim)</option>
-                                <option value="Diproses" {{ $pesanan->status_pesanan == 'Diproses' ? 'selected' : '' }}>🫧 Diproses (Sedang Dicuci)</option>
-                                <option value="Selesai" {{ $pesanan->status_pesanan == 'Selesai' ? 'selected' : '' }}>✅ Selesai (Siap Diambil)</option>
+                                <option value="Pending" {{ $pesanan->status_pesanan == 'Pending' ? 'selected' : '' }}>⏳ Pending </option>
+                                <option value="Menunggu Pembayaran" {{ $pesanan->status_pesanan == 'Menunggu Pembayaran' ? 'selected' : '' }}>💳 Menunggu Pembayaran</option>
+                                <option value="Diproses" {{ $pesanan->status_pesanan == 'Diproses' ? 'selected' : '' }}>🫧 Diproses </option>
+                                <option value="Selesai" {{ $pesanan->status_pesanan == 'Selesai' ? 'selected' : '' }}>✅ Selesai</option>
                             </select>
                             <div class="absolute inset-y-0 right-0 flex items-center px-4 text-slate-500 pointer-events-none">
                                 <i class="ph-bold ph-caret-down text-lg"></i>
@@ -108,7 +108,7 @@
 
                     <div class="grid md:grid-cols-2 gap-6">
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Berat Real (Kg)</label>
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Berat (Kg)</label>
                             <div class="relative group">
                                 <input type="number" step="0.01" name="berat" id="inputBerat" value="{{ $pesanan->berat }}"
                                        class="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 text-lg rounded-2xl focus:bg-white focus:border-brand-500 block p-4 pl-12 outline-none transition-all font-bold group-hover:border-slate-200"
@@ -163,24 +163,27 @@
 
 <script>
     const hargaPerKg = {{ $pesanan->layanan->harga }};
+    const progresLama = {{ $pesanan->user->progres_kg ?? 0 }};
 
     function hitungTotal() {
-        const beratInput = document.getElementById('inputBerat').value;
+        const beratInputRaw = document.getElementById('inputBerat').value;
         const totalInput = document.getElementById('inputTotal');
         
-        // Pastikan input tidak kosong
-        let berat = parseFloat(beratInput) || 0;
+        let beratInput = parseFloat(beratInputRaw) || 0;
         
-        // Logika Bonus (Jika > 8kg, hitung bayar -1kg)
-        // Jika Anda ingin murni perkalian biasa, hapus blok if ini
-        if(berat > 8) {
-            berat = berat - 1;
+        let totalAkumulasi = progresLama + beratInput;
+
+        let jumlahGratis = Math.floor(totalAkumulasi / 9);
+
+        let potonganSaatIni = 0;
+        if (jumlahGratis > 0) {
+            potonganSaatIni = Math.min(jumlahGratis, beratInput);
         }
 
-        let totalBaru = berat * hargaPerKg;
+        let beratTagihan = beratInput - potonganSaatIni;
+        let totalBayar = beratTagihan * hargaPerKg;
         
-        // Bulatkan ke integer
-        totalInput.value = Math.round(totalBaru);
+        totalInput.value = Math.round(totalBayar);
     }
 </script>
 @endsection

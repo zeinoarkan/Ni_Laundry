@@ -63,7 +63,7 @@
                 <div class="flex justify-between items-start mb-6">
                     <div>
                         <div class="flex items-center gap-2 mb-1">
-                            <h3 class="font-bold text-slate-800 text-lg uppercase tracking-wider">Progres Diskon</h3>
+                            <h2 class="font-bold text-slate-800 text-lg uppercase tracking-wider">Progres Diskon</h2>
                         </div>
                         <p class="text-slate-500 text-sm font-medium">Kejar diskon spesial Anda.</p>
                     </div>
@@ -215,7 +215,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Efek Magnetik pada tombol CTA Bawah
         const ctaBtn = document.getElementById('magnetic-cta');
         if(ctaBtn && typeof gsap !== 'undefined') {
             ctaBtn.addEventListener('mousemove', (e) => {

@@ -28,11 +28,9 @@
             @php
                 $name = strtolower($l->nama_layanan);
 
-                // Default Icon
                 $icon = 'ph-duotone ph-t-shirt';
                 $color = 'bg-slate-50 text-slate-600';
 
-                // Deteksi Keyword
                 if(str_contains($name, 'setrika')) {
                     $icon = 'mdi mdi-iron-outline';
                     $color = 'bg-orange-50 text-orange-600';
@@ -121,7 +119,6 @@
     </div>
 
     {{-- BAGIAN KANAN: FORM ORDER (Sticky Position) --}}
-    {{-- 'sticky top-28' membuat elemen ini menempel saat discroll --}}
     <div class="w-full lg:w-2/5 sticky top-28 z-20" data-aos="fade-left" data-aos-duration="800">
         
         <div id="formContainer" class="bg-white/95 md:bg-white/80 md:backdrop-blur-lg rounded-[2.5rem] shadow-lg border border-white/50 p-6 md:p-8 relative overflow-hidden transition-all duration-300">
@@ -143,7 +140,7 @@
                 <form id="orderForm" action="{{ route('pesan.store') }}" method="POST" class="space-y-5">
                     @csrf
                     
-                    {{-- Input Layanan (TETAP ADA) --}}
+                    {{-- Input Layanan --}}
                     <div class="space-y-1.5">
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Layanan</label>
                         <div class="relative">
@@ -159,7 +156,7 @@
                         </div>
                     </div>
 
-                    {{-- BAGIAN BERAT DIHAPUS, DIGANTI INFO INI --}}
+                    {{-- Info Berat (Statis) --}}
                     <div class="bg-brand-50 border border-brand-100 rounded-2xl p-4 flex gap-3 items-center">
                         <div class="w-10 h-10 rounded-full bg-white text-brand-600 flex items-center justify-center shrink-0 shadow-sm">
                             <i class="ph-duotone ph-scales text-xl"></i>
@@ -170,11 +167,10 @@
                         </div>
                     </div>
 
-                    {{-- Input Metode (TETAP ADA) --}}
+                    {{-- Input Metode --}}
                     <div class="space-y-1.5">
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Metode</label>
                         <div class="grid grid-cols-2 gap-3">
-                            {{-- (Code radio button metode tetap sama seperti sebelumnya...) --}}
                             <label class="cursor-pointer">
                                 <input type="radio" name="metode" value="Antar Jemput" class="peer sr-only" checked>
                                 <div class="p-4 rounded-2xl border-2 border-slate-100 bg-white hover:bg-slate-50 peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-600 transition-all text-center h-full flex flex-col items-center justify-center gap-1 group">
@@ -227,35 +223,30 @@
     </div>
 </div>
 
-{{-- SCRIPT KHUSUS HALAMAN INI --}}
+{{-- SCRIPT JAVASCRIPT LENGKAP & TERHUBUNG --}}
 <script>
-    // Fungsi untuk tombol (+) pada kartu layanan
     function selectServiceWithAnim(btn, serviceId) {
-        // 1. Ambil elemen select di form
         const selectBox = document.getElementById('layananSelect');
         const formContainer = document.getElementById('formContainer');
 
         if(selectBox) {
-            // 2. Set nilainya
             selectBox.value = serviceId;
 
-            // 3. Efek Visual pada Form (Highlight)
             formContainer.classList.add('ring-4', 'ring-brand-200', 'scale-[1.02]');
             setTimeout(() => {
                 formContainer.classList.remove('ring-4', 'ring-brand-200', 'scale-[1.02]');
             }, 400);
 
-            // 4. Scroll ke Form jika di Mobile
             if(window.innerWidth < 1024) {
                 formContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         } else {
-            // Jika form tidak ada (belum login), arahkan ke login
             Swal.fire({
                 icon: 'info',
                 title: 'Login Diperlukan',
                 text: 'Silakan login terlebih dahulu untuk memilih layanan.',
-                confirmButtonColor: '#0f172a'
+                confirmButtonColor: '#0f172a',
+                customClass: { popup: 'rounded-[2rem] p-6' }
             });
         }
     }
@@ -265,7 +256,7 @@
 
         if(orderForm) {
             orderForm.addEventListener('submit', function(e) {
-                e.preventDefault(); // Tahan submit asli
+                e.preventDefault(); 
 
                 const layananSelect = this.querySelector('select[name="id_layanan"]');
                 const layananText = layananSelect.options[layananSelect.selectedIndex].text;
@@ -289,47 +280,65 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         
-                        // --- BAGIAN YANG DIUBAH MULAI DARI SINI ---
-                        
                         Swal.fire({
-                        title: '',
-                        icon: '',
-                        width: 400,
-                        // Tambahkan padding atas (pt-8) di container utama popup agar lebih lega
-                        html: `
-                            <div class="flex flex-col items-center justify-center pt-4">
-
-                                <div class="relative w-20 h-20 mt-6 mb-6">
-
-                                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1.5 bg-slate-200 rounded-[100%] blur-sm animate-[pulse_1s_infinite]"></div>
-
-                                    <img src="{{ asset('img/logo.webp') }}" width="40" height="40"
-                                        class="w-full h-full object-contain animate-bounce relative z-10"
-                                        alt="Loading...">
+                            title: '',
+                            icon: '',
+                            width: 400,
+                            html: `
+                                <div class="flex flex-col items-center justify-center pt-4">
+                                    <div class="relative w-20 h-20 mt-6 mb-6">
+                                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1.5 bg-slate-200 rounded-[100%] blur-sm animate-[pulse_1s_infinite]"></div>
+                                        <img src="{{ asset('img/logo.webp') }}" width="40" height="40"
+                                            class="w-full h-full object-contain animate-bounce relative z-10"
+                                            alt="Loading...">
+                                    </div>
+                                    <h3 class="text-lg font-bold text-slate-800 mb-2">Memproses Pesanan...</h3>
+                                    <p class="text-xs text-slate-500">Mohon tunggu sebentar.</p>
                                 </div>
+                            `,
+                            showConfirmButton: false,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            background: '#ffffff',
+                            customClass: {
+                                popup: 'rounded-[2.5rem] border border-slate-100 shadow-2xl !p-0 overflow-hidden'
+                            }
+                        });
 
-                                <h3 class="text-lg font-bold text-slate-800 mb-2">Sedang Memproses...</h3>
-                                <p class="text-xs text-slate-500">Mohon tunggu, jangan tutup halaman ini.</p>
-                            </div>
-                        `,
-                        showConfirmButton: false,
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        background: '#ffffff',
-                        // Menghapus padding bawaan sweetalert agar kita bisa atur sendiri di HTML di atas
-                        customClass: {
-                            popup: 'rounded-[2.5rem] border border-slate-100 shadow-2xl !p-0 overflow-hidden'
-                        }
-                    });
-
-                    setTimeout(() => {
-                        this.submit();
-                    }, 800);
+                        setTimeout(() => {
+                            orderForm.submit();
+                        }, 800);
                     }
                 });
             });
         }
     });
+    
+    @if($errors->any())
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal Memesan',
+            html: `
+                <ul class="text-left text-sm text-slate-600 list-disc pl-4 space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            `,
+            confirmButtonColor: '#0f172a',
+            customClass: { popup: 'rounded-[2rem] p-6' }
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: "{{ session('error') }}",
+            confirmButtonColor: '#0f172a',
+            customClass: { popup: 'rounded-[2rem] p-6' }
+        });
+    @endif
 </script>
 
 @endsection

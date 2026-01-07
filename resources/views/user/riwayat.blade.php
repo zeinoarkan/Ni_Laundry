@@ -43,11 +43,18 @@
         @forelse($pesanan as $p)
 
         @php
+            $total       = $p->total_harga;
+            $sudah_bayar = $p->jumlah_bayar ?? 0;
+            $sisa        = $total - $sudah_bayar;
+            
+            $isLunas     = $sisa <= 0 && $total > 0;
+            $isDP        = $sudah_bayar > 0 && !$isLunas; 
+            $isGratis    = $total == 0 && $p->berat > 0;
+
             $name = strtolower($p->layanan->nama_layanan ?? '');
             $icon = 'ph-duotone ph-basket'; 
             $color = 'bg-brand-50 text-brand-600';
 
-            // Logika Icon
             if(str_contains($name, 'setrika')) { $icon = 'mdi mdi-iron-outline'; $color = 'bg-orange-50 text-orange-600'; } 
             elseif(str_contains($name, 'karpet')) { $icon = 'ph-duotone ph-rug'; $color = 'bg-red-50 text-red-600'; } 
             elseif(str_contains($name, 'sepatu') || str_contains($name, 'sneaker')) { $icon = 'ph-duotone ph-sneaker'; $color = 'bg-yellow-50 text-yellow-600'; } 
@@ -97,6 +104,10 @@
                              <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded border border-red-100 flex items-center gap-1">
                                 <i class="ph-bold ph-x-circle"></i> Batal
                             </span>
+                        @elseif($p->status_pesanan == 'Dikembalikan')
+                             <span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded border border-slate-200 flex items-center gap-1">
+                                <i class="ph-bold ph-arrow-u-up-left"></i> Refunded
+                            </span>
                         @elseif($p->berat == 0)
                             <span class="bg-amber-50 text-amber-600 px-2 py-0.5 rounded border border-amber-100 flex items-center gap-1">
                                 <i class="ph-bold ph-scales"></i> Sedang Ditimbang
@@ -125,12 +136,19 @@
                         </span>
 
                     @elseif($p->status_pesanan == 'Menunggu Pembayaran')
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold border border-amber-100 shadow-sm">
-                            <span class="relative flex h-2 w-2 mr-0.5">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                            </span> Menunggu Bayar
-                        </span>
+                        {{-- Logika Badge Khusus DP --}}
+                        @if($isDP)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-bold border border-orange-100 shadow-sm">
+                                <i class="ph-fill ph-coins"></i> Kurang Bayar (DP)
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold border border-amber-100 shadow-sm">
+                                <span class="relative flex h-2 w-2 mr-0.5">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                </span> Menunggu Bayar
+                            </span>
+                        @endif
 
                     @elseif($p->status_pesanan == 'Diproses')
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-bold border border-brand-100 shadow-sm">
@@ -146,6 +164,10 @@
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold border border-red-100 shadow-sm">
                             <i class="ph-bold ph-x-circle text-red-500"></i> Dibatalkan
                         </span>
+                    @elseif($p->status_pesanan == 'Dikembalikan')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold border border-slate-200 shadow-sm">
+                            <i class="ph-bold ph-arrow-u-up-left"></i> Dikembalikan
+                        </span>
                     @endif
                 </div>
             </div>
@@ -153,31 +175,37 @@
             {{-- Bagian Bawah: Harga & Aksi --}}
             <div class="mt-auto pt-4 border-t border-dashed border-slate-200 flex flex-col gap-4 group-hover:border-brand-200 transition-colors">
                 <div class="flex justify-between items-end">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Tagihan</span>
+                    
+                    {{-- LABEL HARGA (DINAMIS SISA/TOTAL) --}}
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            {{ $isDP ? 'Sisa Tagihan' : 'Total Tagihan' }}
+                        </span>
+                        @if($isDP)
+                            <span class="text-[10px] text-slate-400 font-medium">Total: Rp {{ number_format($total, 0, ',', '.') }}</span>
+                        @endif
+                    </div>
+
                     <div class="text-right">
                         @if($p->status_pesanan == 'Pending')
                              <span class="text-sm font-bold text-slate-400">Menunggu Admin</span>
                         
-                        @elseif($p->status_pesanan == 'Dibatalkan')
-                             <span class="text-sm font-bold text-red-400 line-through">Rp {{ number_format($p->total_harga, 0, ',', '.') }}</span>
+                        @elseif($p->status_pesanan == 'Dibatalkan' || $p->status_pesanan == 'Dikembalikan')
+                             <span class="text-sm font-bold text-red-400 line-through">Rp {{ number_format($total, 0, ',', '.') }}</span>
                         
-                        @elseif($p->total_harga == 0)
+                        @elseif($isGratis)
                              <span class="text-xl font-bold text-emerald-500 animate-pulse">GRATIS</span>
                         @else
-                            @if($p->berat * $p->layanan->harga > $p->total_harga)
-                                <span class="block text-xs text-slate-400 font-medium line-through opacity-70">
-                                    Rp {{ number_format($p->berat * $p->layanan->harga, 0, ',', '.') }}
-                                </span>
-                            @endif
-                            <span class="text-xl font-bold text-slate-800 group-hover:text-brand-600 transition-colors">
-                                Rp {{ number_format($p->total_harga, 0, ',', '.') }}
+                            {{-- LOGIKA NOMINAL: TAMPILKAN SISA JIKA DP --}}
+                            <span class="text-xl font-bold {{ $isDP ? 'text-rose-600' : 'text-slate-800' }} group-hover:text-brand-600 transition-colors">
+                                Rp {{ number_format($isDP ? $sisa : $total, 0, ',', '.') }}
                             </span>
                         @endif
                     </div>
                 </div>
 
                 {{-- ========================================== --}}
-                {{-- LOGIKA TOMBOL AKSI UTAMA --}}
+                {{-- LOGIKA TOMBOL AKSI UTAMA (UPDATED) --}}
                 {{-- ========================================== --}}
 
                 {{-- 1. JIKA STATUS PENDING -> BOLEH BATALKAN --}}
@@ -187,7 +215,6 @@
                             Menunggu konfirmasi laundry...
                         </div>
                         
-                        {{-- Form Batalkan dengan ID dan tipe button --}}
                         <form id="form-batal-{{ $p->id_pesanan }}" action="/pesanan/cancel/{{ $p->id_pesanan }}" method="POST">
                             @csrf
                             @method('DELETE')
@@ -197,8 +224,9 @@
                         </form>
                     </div>
 
-                {{-- 2. JIKA SUDAH ADA HARGA & BELUM LUNAS -> TOMBOL BAYAR --}}
-                @elseif($p->total_harga > 0 && $p->jumlah_bayar < $p->total_harga && $p->status_pesanan != 'Dibatalkan')
+                {{-- 2. JIKA BELUM LUNAS (BAIK ITU FULL BELUM BAYAR ATAU DP) --}}
+                {{-- Syarat: Ada Tagihan, Sisa Tagihan > 0, Tidak Batal/Dikembalikan --}}
+                @elseif($total > 0 && $sisa > 0 && !in_array($p->status_pesanan, ['Dibatalkan', 'Dikembalikan']))
                     
                     <button onclick="bayarSekarang({{ $p->id_pesanan }})" 
                             id="btn-bayar-{{ $p->id_pesanan }}"
@@ -206,12 +234,12 @@
                         <span class="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></span>
                         <i class="ph-bold ph-credit-card relative z-10"></i> 
                         <span class="relative z-10">
-                            {{ $p->status_pesanan == 'Selesai' ? 'Bayar Tagihan Akhir' : 'Bayar Sekarang' }}
+                            {{ $isDP ? 'Lunasi Sisa Tagihan' : 'Bayar Sekarang' }}
                         </span>
                     </button>
 
                 {{-- 3. JIKA SUDAH LUNAS --}}
-                @elseif($p->jumlah_bayar >= $p->total_harga && $p->total_harga > 0)
+                @elseif($isLunas)
                     <div class="w-full py-2.5 text-center text-xs text-emerald-600 font-bold bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-center gap-1">
                         <i class="ph-bold ph-check-circle"></i> Lunas
                     </div>
@@ -222,10 +250,10 @@
                         </a>
                     @endif
 
-                {{-- 4. JIKA DIBATALKAN --}}
-                @elseif($p->status_pesanan == 'Dibatalkan')
-                    <div class="w-full py-2.5 text-center text-xs text-red-400 font-medium bg-slate-50 rounded-xl border border-slate-200">
-                        Pesanan telah dibatalkan
+                {{-- 4. JIKA DIBATALKAN / DIKEMBALIKAN --}}
+                @elseif($p->status_pesanan == 'Dibatalkan' || $p->status_pesanan == 'Dikembalikan')
+                    <div class="w-full py-2.5 text-center text-xs text-slate-400 font-medium bg-slate-50 rounded-xl border border-slate-200">
+                        Tidak ada tagihan aktif
                     </div>
                 @endif
             </div>
@@ -252,15 +280,14 @@
 {{-- SCRIPT JAVASCRIPT LENGKAP --}}
 <script type="text/javascript">
     
-    // FUNGSI 1: KONFIRMASI BATAL + ANIMASI
     function konfirmasiBatal(idPesanan) {
         Swal.fire({
             title: 'Batalkan Pesanan?',
             text: "Apakah Anda yakin ingin membatalkan pesanan ini?",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#ef4444', // Merah
-            cancelButtonColor: '#64748b', // Abu-abu
+            confirmButtonColor: '#ef4444', 
+            cancelButtonColor: '#64748b', 
             confirmButtonText: 'Ya, Batalkan',
             cancelButtonText: 'Batal',
             reverseButtons: true,
@@ -272,7 +299,6 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 
-                // Tampilkan Loading Animasi Logo
                 Swal.fire({
                     html: `
                         <div class="flex flex-col items-center justify-center pt-4">
@@ -294,7 +320,6 @@
                     }
                 });
 
-                // Submit form secara programmatically setelah delay kecil agar animasi terlihat
                 setTimeout(() => {
                     document.getElementById('form-batal-' + idPesanan).submit();
                 }, 800);
@@ -303,7 +328,6 @@
     }
 
 
-    // FUNGSI 2: BAYAR SEKARANG (Existing)
     async function bayarSekarang(idPesanan) {
         
         Swal.fire({

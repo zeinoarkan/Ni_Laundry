@@ -73,13 +73,16 @@
                 {{-- Desktop Menu --}}
                 <div class="hidden md:flex items-center gap-1 bg-white/50 p-1.5 rounded-full border border-white/50 backdrop-blur-sm shadow-sm">
                     @if(Auth::guard('admin')->check())
-                        <a href="/admin/dashboard" class="px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-100">Dashboard</a>
-                        <a href="/admin/pesanan" class="px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-100">Pesanan</a>
+                        <a href="/admin/dashboard" class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ Request::is('admin/dashboard') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Dashboard</a>
+                        <a href="/admin/pesanan" class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ Request::is('admin/pesanan') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Pesanan</a>
+                        <a href="/admin/layanan" class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ Request::is('admin/layanan') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Layanan</a>
+                        <a href="/admin/diskon" class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ Request::is('admin/diskon') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Diskon</a>
+                        <a href="/admin/users" class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ Request::is('admin/users') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Admin</a>
                     @else 
                         <a href="/" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('/') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Beranda</a> 
                         <a href="/layanan" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('layanan') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Layanan</a>
                         @auth
-                            <a href="/riwayat" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('riwayat') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Riwayat</a>
+                        <a href="/riwayat" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('riwayat') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Riwayat</a>
                         @endauth
                     @endif
                 </div>
@@ -98,7 +101,7 @@
                     @endif
                 </div>
 
-                <button @click="mobileOpen = !mobileOpen" class="md:hidden p-2 text-slate-800">
+                <button @click="mobileOpen = !mobileOpen" aria-label="Mobile-menu" class="md:hidden p-2 text-slate-800">
                     <i class="ph-bold text-2xl" :class="mobileOpen ? 'ph-x' : 'ph-list'"></i>
                 </button>
             </div>
@@ -120,19 +123,71 @@
         </div>
     </nav>
 
-    <main id="main-content" class="flex-grow pt-32 pb-12 px-4 md:px-8 max-w-7xl mx-auto w-full z-10 relative">
+    <main class="flex-grow pt-24 md:pt-32 pb-8 md:pb-12 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full z-10">
+        @if(session('success'))
+            <div x-data="{ show: true }" x-show="show" x-transition
+                 class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center gap-3 text-emerald-700 shadow-sm">
+                <i class="ph-fill ph-check-circle text-xl shrink-0"></i>
+                <span class="font-medium text-sm">{{ session('success') }}</span>
+            </div>
+        @endif
         @yield('content')
     </main>
 
-    <footer class="bg-slate-900 text-slate-300 mt-20 pt-20 pb-10 rounded-t-[3rem] relative overflow-hidden">
+    <footer class="bg-slate-900 text-white mt-12 md:mt-20 pt-12 md:pt-20 pb-10 rounded-t-[2rem] md:rounded-t-[3rem] relative overflow-hidden">
+        {{-- Background Footer Menggunakan Class lokal --}}
         <div class="absolute inset-0 opacity-10 footer-texture"></div>
-        <div class="max-w-7xl mx-auto px-8 relative z-10 text-center text-xs text-slate-500">
-            <p>© 2025 Ni Laundry. All rights reserved.</p>
+        <div class="absolute -top-24 -left-24 w-64 md:w-96 h-64 md:h-96 bg-brand-500/20 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute bottom-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-fresh-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
+           
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 md:gap-12 mb-12 md:mb-16">
+               
+                <div class="lg:col-span-4 space-y-6">
+                    <a href="/" class="flex items-center gap-2 group w-fit">
+                        <img src="{{ asset('img/logo.webp') }}" alt="Ni Laundry" class="h-8 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                        <span class="text-xl md:text-2xl font-bold tracking-tight">
+                            Ni Laundry<span class="text-fresh-400">.</span>
+                        </span>
+                    </a>
+                    <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
+                        Layanan laundry dengan teknologi modern. Kami merawat pakaian Anda dengan standar kebersihan internasional dan pelayanan sepenuh hati.
+                    </p>
+                    <div class="flex gap-3">
+                        <a href="https://www.instagram.com/ni.laundry" target="_blank" aria-label="Instagram" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-all"><i class="ph-fill ph-instagram-logo text-lg"></i></a>
+                        <a href="https://web.facebook.com/profile.php?id=61582451486766#" target="_blank" aria-label="Facebook" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-all"><i class="ph-fill ph-facebook-logo text-lg"></i></a>
+                        <a href="https://wa.me/+6282147556964" target="_blank" aria-label="WhatsApp" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-all"><i class="ph-fill ph-whatsapp-logo text-lg"></i></a>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 space-y-4 md:space-y-6">
+                    <h3 class="font-bold text-lg">Layanan</h3>
+                    <ul class="space-y-3 md:space-y-4 text-sm text-slate-400">
+                        <li><a href="/layanan" class="hover:text-brand-400 transition-colors flex items-center gap-2 group"><i class="ph-bold ph-caret-right opacity-0 group-hover:opacity-100 transition-opacity -ml-4 group-hover:ml-0"></i> Cuci Kiloan</a></li>
+                        <li><a href="/layanan" class="hover:text-brand-400 transition-colors flex items-center gap-2 group"><i class="ph-bold ph-caret-right opacity-0 group-hover:opacity-100 transition-opacity -ml-4 group-hover:ml-0"></i> Cuci Satuan</a></li>
+                        <li><a href="/layanan" class="hover:text-brand-400 transition-colors flex items-center gap-2 group"><i class="ph-bold ph-caret-right opacity-0 group-hover:opacity-100 transition-opacity -ml-4 group-hover:ml-0"></i> Cuci Khusus</a></li>
+                    </ul>
+                </div>
+
+                <div class="lg:col-span-2 space-y-4 md:space-y-6">
+                    <h3 class="font-bold text-lg">Perusahaan</h3>
+                    <ul class="space-y-3 md:space-y-4 text-sm text-slate-400">
+                        <li><a href="/#about" class="hover:text-brand-400 transition-colors">Tentang Kami</a></li>
+                        <li><a href="https://www.google.com/maps?q=-7.7766983,110.3455633&z=17&hl=en" target="_blank" class="hover:text-brand-400 transition-colors flex items-center gap-2 group">Lokasi Outlet <i class="ph-bold ph-arrow-square-out opacity-0 group-hover:opacity-100 transition-opacity text-xs"></i></a></li>
+                        <li><a href="https://wa.me/+6282147556964" target="_blank" class="hover:text-brand-400 transition-colors flex items-center gap-2 group">Kontak Kami <i class="ph-bold ph-arrow-square-out opacity-0 group-hover:opacity-100 transition-opacity text-xs"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+                <p>© 2025 Ni Laundry. All rights reserved.</p>
+            </div>
+
         </div>
     </footer>
 
     {{-- SCRIPTS --}}
-    {{-- Alpine sudah dihapus dari sini karena sudah masuk ke app.js via NPM --}}
     <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
     
