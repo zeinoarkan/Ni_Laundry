@@ -5,10 +5,10 @@
 @import "@fontsource/outfit/700.css";
 @import "@fontsource/outfit/800.css";
 
-/* 2. Import AOS CSS (Pengganti Unpkg CDN) */
+/* 2. Import AOS CSS */
 @import "aos/dist/aos.css";
 
-/* 3. Import MDI (Yang tadi sudah ada) */
+/* 3. Import MDI */
 @import "@mdi/font/css/materialdesignicons.css";
 
 /* 4. Import Utama Tailwind v4 */
@@ -42,6 +42,20 @@
 
 /* 4. Base Styles (Body & Global) */
 @layer base {
+    /* Perbaikan utama untuk Horizontal Scroll */
+    html, body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden; /* Mencegah scroll ke samping */
+        position: relative;
+        -webkit-text-size-adjust: 100%; /* Fix font size di iPhone landscape */
+    }
+
+    /* Fix Overscroll di Mobile */
+    html {
+        overscroll-behavior-y: none;
+    }
+
     body {
         background-color: #F8FAFC;
         background-image: 
@@ -50,7 +64,16 @@
         background-attachment: fixed;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        overflow-x: hidden;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column; /* Memastikan footer selalu di bawah (sticky bottom) */
+    }
+
+    /* Memastikan elemen gambar tidak merusak layout */
+    img {
+        max-width: 100%;
+        height: auto;
+        display: block;
     }
 }
 
@@ -58,6 +81,18 @@
 @layer utilities {
     [x-cloak] {
         display: none !important;
+    }
+
+    /* --- CLASS KHUSUS FOOTER --- */
+    /* Gunakan class ini di div pembungkus konten footer */
+    .footer-safe-area {
+        padding-top: 6rem; /* 96px: Jarak aman untuk HP agar tidak nabrak lengkungan */
+    }
+
+    @media (min-width: 768px) {
+        .footer-safe-area {
+            padding-top: 4rem; /* 64px: Jarak normal untuk Tablet/Desktop */
+        }
     }
 }
 
@@ -80,3 +115,8 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: hidden; }
 .lenis.lenis-scrolling iframe { pointer-events: none; }
+
+/* DEBUGGING MODE (DIBUAT KOMENTAR)
+   Hapus tanda komentar (slash-bintang) jika ingin mengecek layout lagi.
+*/
+/* * { outline: 1px solid red !important; } */

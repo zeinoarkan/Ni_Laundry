@@ -80,7 +80,6 @@
                 
                 <div>
                     <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-brand-600 transition-colors duration-300">{{ $l->nama_layanan }}</h3>
-                    <p class="text-sm text-slate-400 mb-4 line-clamp-2">{{ $l->deskripsi ?? 'Layanan laundry profesional.' }}</p>
                 </div>
                 
                 <div class="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
