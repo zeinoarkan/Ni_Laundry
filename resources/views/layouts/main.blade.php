@@ -122,19 +122,17 @@
         {{-- Mobile Menu Dropdown --}}
         <div x-show="mobileOpen" x-collapse x-cloak class="md:hidden absolute top-full left-0 w-full px-4 mt-2">
             <div class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-2 flex flex-col gap-1 ring-1 ring-black/5">
-                 @if(Auth::guard('admin')->check())
-                            <a href="/admin/dashboard" class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ Request::is('admin/dashboard') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Dashboard</a>
-                            <a href="/admin/pesanan" class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ Request::is('admin/pesanan') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Pesanan</a>
-                            <a href="/admin/layanan" class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ Request::is('admin/layanan') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Layanan</a>
-                            <a href="/admin/diskon" class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ Request::is('admin/diskon') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Diskon</a>
-                            <a href="/admin/users" class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ Request::is('admin/users') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Admin</a>
-                        @else 
-                            <a href="/" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('/') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Beranda</a> 
-                            <a href="/layanan" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('layanan') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Layanan</a>
-                            @auth
-                            <a href="/riwayat" class="px-5 py-2 rounded-full text-sm font-semibold transition-all {{ Request::is('riwayat') ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-brand-600' }}">Riwayat</a>
-                            @endauth
-                        @endif
+                <a href="/" class="p-3 rounded-xl hover:bg-slate-50 font-medium text-slate-700 flex items-center justify-between group">
+                    Beranda <i class="ph-bold ph-caret-right text-slate-400 group-hover:text-brand-500"></i>
+                </a>
+                <a href="/layanan" class="p-3 rounded-xl hover:bg-slate-50 font-medium text-slate-700 flex items-center justify-between group">
+                    Layanan <i class="ph-bold ph-caret-right text-slate-400 group-hover:text-brand-500"></i>
+                </a>
+                @auth 
+                <a href="/riwayat" class="p-3 rounded-xl hover:bg-slate-50 font-medium text-slate-700 flex items-center justify-between group">
+                    Riwayat <i class="ph-bold ph-caret-right text-slate-400 group-hover:text-brand-500"></i>
+                </a> 
+                @endauth
                 
                 <div class="h-px bg-slate-100 my-1 mx-2"></div>
                 

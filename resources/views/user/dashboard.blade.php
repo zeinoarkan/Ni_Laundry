@@ -6,8 +6,8 @@
 
     <div class="grid lg:grid-cols-12 gap-6 items-stretch">
         
-        <div class="lg:col-span-3 relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-brand-600 shadow-glow group min-h-[400px] md:min-h-[450px]" 
-             data-aos="fade-right">
+        <div class="lg:col-span-7 relative overflow-hidden rounded-[2.5rem] bg-brand-600 shadow-glow group min-h-[350px] md:min-h-[400px] flex items-center" 
+             data-aos="fade-right" data-aos-duration="1000">
              
             <img 
                 src="https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=1200&auto=format&fit=crop" 
@@ -60,14 +60,14 @@
             <div class="absolute top-0 right-0 w-48 h-48 bg-fresh-400/20 rounded-full blur-[60px] -z-10 group-hover:bg-fresh-400/30 transition-colors"></div>
             
             <div>
-                <div class="flex items-center gap-3 mb-4">
+                <div class="flex justify-between items-start mb-6">
                     <div>
                         <div class="flex items-center gap-2 mb-1">
                             <h2 class="font-bold text-slate-800 text-lg uppercase tracking-wider">Progres Diskon</h2>
                         </div>
                         <p class="text-slate-500 text-sm font-medium">Kejar diskon spesial Anda.</p>
                     </div>
-                    <div class="bg-brand-50 text-brand-600 flex items-center justify-center text-2xl shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-2xl shadow-sm">
                     </div>
                 </div>
 
