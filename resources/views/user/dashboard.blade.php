@@ -67,7 +67,7 @@
                         </div>
                         <p class="text-slate-500 text-sm font-medium">Kejar diskon spesial Anda.</p>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-2xl shadow-sm">
+                    <div class="bg-brand-50 text-brand-600 flex items-center justify-center text-2xl shadow-sm">
                     </div>
                 </div>
 

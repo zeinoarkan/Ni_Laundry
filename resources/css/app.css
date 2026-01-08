@@ -42,97 +42,56 @@
 
 /* 4. Base Styles (Body & Global) */
 @layer base {
+    /* Perbaikan utama untuk Horizontal Scroll */
     html, body {
-        width: 100%;
-        max-width: 100%;
+        max-width: 100vw;
         overflow-x: hidden;
         position: relative;
-        -webkit-text-size-adjust: 100%;
-    }
-
-    html {
-        overscroll-behavior-y: none;
+        /* Mencegah tarikan elastis di iOS yang sering bikin 'goyang' */
+        overscroll-behavior-x: none; 
     }
 
     body {
         background-color: #F8FAFC;
-        /* Background image tetap sama */
         background-image: 
             radial-gradient(at 0% 0%, hsla(213,100%,88%,1) 0, transparent 50%), 
             radial-gradient(at 100% 100%, hsla(189,100%,88%,1) 0, transparent 50%);
         background-attachment: fixed;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        /* Pastikan body tidak memicu scroll horizontal */
+        width: 100%; 
         min-height: 100vh;
-        display: flex;
-        flex-direction: column;
     }
 
+    /* Memastikan elemen gambar tidak merusak layout */
     img {
         max-width: 100%;
         height: auto;
-        display: block;
     }
 }
 
 /* 5. Utilities Tambahan */
 @layer utilities {
-    [x-cloak] { display: none !important; }
-
-    .footer-safe-area {
-        padding-top: 6rem;
-    }
-
-    @media (min-width: 768px) {
-        .footer-safe-area { padding-top: 4rem; }
+    [x-cloak] {
+        display: none !important;
     }
 }
 
-/* --- 6. HIGH END PRELOADER STYLES (UPDATED) --- */
-/* Style ini mendukung struktur HTML 5 kolom yang baru */
-
+/* 6. Style Komponen Preloader */
 #preloader {
     position: fixed;
     inset: 0;
-    z-index: 99999; /* Z-index tertinggi */
-    display: flex; /* Flex untuk kolom tirai */
-    pointer-events: none; /* Biarkan user klik elemen di bawahnya setelah animasi */
-}
-
-/* Class wajib saat loading agar scroll benar-benar mati */
-body.is-loading {
-    overflow: hidden !important;
-    height: 100vh !important;
-}
-
-/* Elemen Tirai (Blinds) */
-.loader-blind {
-    flex: 1;
-    background-color: #0f172a; /* Slate 900 sesuai tema */
-    height: 100%;
-    transform-origin: top;
+    background: #0f172a;
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
     will-change: transform;
-    /* Border tipis untuk detail tekstur premium */
-    border-right: 1px solid rgba(255,255,255,0.03); 
-}
-.loader-blind:last-child {
-    border-right: none;
 }
 
-/* Konten Tengah (Angka & Text) */
-.loader-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100;
-    color: #fff;
-    text-align: center;
-    width: 100%;
-    mix-blend-mode: exclusion; /* Efek blending artistik */
-}
-
-/* 7. STYLE WAJIB LENIS */
+/* 7. STYLE WAJIB LENIS (Smooth Scroll) */
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
