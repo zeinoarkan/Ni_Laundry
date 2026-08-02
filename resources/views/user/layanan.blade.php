@@ -188,7 +188,7 @@
                     </div>
 
                     <button type="submit" class="w-full py-4 px-6 rounded-2xl bg-slate-900 text-white font-bold text-sm shadow-lg hover:shadow-xl hover:-translate-y-0.5 hover:bg-brand-600 transition-all duration-300 flex items-center justify-center gap-2 mt-4 group">
-                        <span>Request Penjemputan</span>
+                        <span>Pesan</span>
                         <i class="ph-bold ph-paper-plane-right group-hover:translate-x-1 transition-transform"></i>
                     </button>
                 </form>
