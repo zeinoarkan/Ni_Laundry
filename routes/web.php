@@ -32,6 +32,7 @@ Route::post('/pesan', [UserController::class, 'storePesanan'])->name('pesan.stor
 Route::get('/pesanan/bayar/{id}', [App\Http\Controllers\UserController::class, 'bayar'])->middleware('auth');
 Route::get('/pesanan/sukses/{id}', [UserController::class, 'paymentSuccess'])->name('pesanan.sukses');
 Route::delete('/pesanan/cancel/{id}', [UserController::class, 'cancelPesanan']);
+Route::get('/pesanan/nota/{id}', [UserController::class, 'notaHTML'])->name('pesanan.nota');
 });
 Route::middleware('auth:admin')->group(function () {
 Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');

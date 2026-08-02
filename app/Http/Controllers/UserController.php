@@ -122,6 +122,14 @@ class UserController extends Controller
         }
     }
 
+    public function notaHTML($id)
+{
+    // Ambil data pesanan (sesuaikan nama model dan relasinya)
+    $pesanan = Pesanan::with('layanan')->where('id_pesanan', $id)->firstOrFail();
+    
+    return view('user.nota', compact('pesanan'));
+}
+
     public function paymentSuccess($id) {
         DB::transaction(function () use ($id) {
             $pesanan = Pesanan::lockForUpdate()->find($id);

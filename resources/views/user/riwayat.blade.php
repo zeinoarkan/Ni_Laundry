@@ -244,11 +244,18 @@
                         <i class="ph-bold ph-check-circle"></i> Lunas
                     </div>
                     
-                    @if($p->status_pesanan == 'Selesai')
-                         <a href="/layanan" class="w-full py-2.5 rounded-xl border-2 border-slate-100 text-slate-600 font-bold text-sm hover:bg-slate-50 hover:border-slate-200 hover:text-slate-900 active:scale-95 transition-all text-center block">
-                            Pesan Lagi
+                    <div class="flex gap-2 mt-2">
+                        @if($p->status_pesanan == 'Selesai')
+                            <a href="/layanan" class="flex-1 py-2.5 rounded-xl border-2 border-slate-100 text-slate-600 font-bold text-sm hover:bg-slate-50 hover:border-slate-200 hover:text-slate-900 active:scale-95 transition-all text-center flex items-center justify-center">
+                                Pesan Lagi
+                            </a>
+                        @endif
+                        
+                        {{-- TOMBOL LIHAT/UNDUH NOTA --}}
+                        <a href="/pesanan/nota/{{ $p->id_pesanan }}" target="_blank" class="flex-1 py-2.5 rounded-xl border-2 border-brand-100 bg-brand-50 text-brand-600 font-bold text-sm hover:bg-brand-100 hover:border-brand-200 active:scale-95 transition-all text-center flex items-center justify-center gap-1">
+                            <i class="ph-bold ph-printer"></i> Cetak / Unduh Nota
                         </a>
-                    @endif
+                    </div>
 
                 {{-- 4. JIKA DIBATALKAN / DIKEMBALIKAN --}}
                 @elseif($p->status_pesanan == 'Dibatalkan' || $p->status_pesanan == 'Dikembalikan')
