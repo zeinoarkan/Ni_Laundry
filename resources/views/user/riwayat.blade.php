@@ -363,12 +363,7 @@
             const data = await response.json();
 
             if (data.error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: data.error,
-                    confirmButtonColor: '#0f172a',
-                    customClass: { popup: 'rounded-[2rem]' }
+                Swal.fire({ icon: 'error', title: 'Oops...', text: data.error, confirmButtonColor: '#0f172a', customClass: { popup: 'rounded-[2rem]' }
                 });
                 return;
             }
@@ -390,11 +385,7 @@
 
         } catch (error) {
             console.error(error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Koneksi Error',
-                text: 'Gagal menghubungkan ke server.',
-                confirmButtonColor: '#0f172a'
+            Swal.fire({icon: 'error', title: 'Koneksi Error', text: 'Gagal menghubungkan ke server.', confirmButtonColor: '#0f172a'
             });
         }
     }
